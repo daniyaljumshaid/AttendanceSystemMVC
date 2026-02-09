@@ -1,0 +1,54 @@
+﻿@* @model AttendanceSystemMVC.ViewModels.StudentMonthlyReportVm
+
+@{
+    ViewBag.Title = "Monthly Report";
+}
+
+<h2>Monthly Report - @ViewBag.Month/@ViewBag.Year</h2>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Total Days</th>
+        <td>@Model.TotalDays</td>
+    </tr>
+    <tr>
+        <th>Present</th>
+        <td>@Model.Present</td>
+    </tr>
+    <tr>
+        <th>Absent</th>
+        <td>@Model.Absent</td>
+    </tr>
+    <tr>
+        <th>Attendance %</th>
+        <td>@Model.Percentage.ToString("0.00")%</td>
+    </tr>
+</table>
+ *@
+
+@model AttendanceSystemMVC.ViewModels.StudentMonthlyReportVm
+
+@{
+    ViewBag.Title = "Monthly Attendance Report";
+}
+
+<h2>Monthly Attendance Report - @ViewBag.Month/@ViewBag.Year</h2>
+
+<table class="table table-bordered mt-3">
+    <tr>
+        <th>Total Days</th>
+        <td>@Model.TotalDays</td>
+    </tr>
+    <tr>
+        <th>Present</th>
+        <td>@Model.Present</td>
+    </tr>
+    <tr>
+        <th>Absent</th>
+        <td>@Model.Absent</td>
+    </tr>
+    <tr>
+        <th>Attendance %</th>
+        <td>@Model.Percentage.ToString("0.##")%</td>
+    </tr>
+</table>

@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "No Current Class";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-times"></i> No Current Class
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-clock fa-4x text-info"></i>
+                    </div>
+                    <h5 class="card-title">No Active Class Right Now</h5>
+                    <p class="card-text">
+                        You don't have any scheduled class at this time. 
+                    </p>
+                    
+                    @if (ViewBag.Message != null)
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> @ViewBag.Message
+                        </div>
+                    }
+                    
+                    <div class="alert alert-light">
+                        <p class="mb-2"><strong>What you can do:</strong></p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Check your daily schedule</li>
+                            <li><i class="fas fa-check text-success"></i> Manage attendance for previous classes</li>
+                            <li><i class="fas fa-check text-success"></i> View attendance reports</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a asp-action="Index" class="btn btn-primary me-2">
+                            <i class="fas fa-home"></i> Back to Dashboard
+                        </a>
+                        <a asp-action="AttendanceManagement" class="btn btn-outline-primary">
+                            <i class="fas fa-clipboard-list"></i> Manage Attendance
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

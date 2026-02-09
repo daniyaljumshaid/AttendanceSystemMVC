@@ -1,0 +1,23 @@
+﻿@model IEnumerable<AttendanceSystemMVC.Models.Session>
+
+<h2>Sessions</h2>
+
+<table class="table table-bordered mt-2">
+    <thead class="thead-dark">
+        <tr>
+            <th>Name</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var session in Model)
+        {
+            <tr>
+                <td>@session.Name</td>
+                <td>@session.StartDate.ToShortDateString()</td>
+                <td>@session.EndDate.ToShortDateString()</td>
+            </tr>
+        }
+    </tbody>
+</table>

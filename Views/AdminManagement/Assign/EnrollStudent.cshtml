@@ -1,0 +1,109 @@
+@{
+    ViewData["Title"] = "Enroll Student";
+
+    var students = ViewBag.Students as List<AttendanceSystemMVC.Models.StudentProfile> ?? new List<AttendanceSystemMVC.Models.StudentProfile>();
+    var courses = ViewBag.Courses as List<AttendanceSystemMVC.Models.Course> ?? new List<AttendanceSystemMVC.Models.Course>();
+    var sessions = ViewBag.Sessions as List<AttendanceSystemMVC.Models.Session> ?? new List<AttendanceSystemMVC.Models.Session>();
+    var sections = ViewBag.Sections as List<AttendanceSystemMVC.Models.Section> ?? new List<AttendanceSystemMVC.Models.Section>();
+}
+
+<div class="container mt-4">
+    <h2>Enroll Student</h2>
+    <hr />
+
+    <form asp-action="EnrollStudent" method="post">
+        <div class="mb-3">
+            <label>Student</label>
+            <select id="studentSelect" name="StudentProfileId" class="form-control" required>
+                <option value="">-- Select Student --</option>
+                @foreach(var s in students)
+                {
+                    <option value="@s.Id">@s.RollNumber - @(s.FullName ?? s.ApplicationUser?.FullName ?? "N/A")</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Session</label>
+            <select id="sessionSelect" name="SessionId" class="form-control" required>
+                <option value="">-- Select Session --</option>
+                @foreach(var s in sessions)
+                {
+                    <option value="@s.Id">@s.Name</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Course</label>
+            <select id="courseSelect" name="CourseId" class="form-control" required>
+                <option value="">-- Select Student and Session First --</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Section</label>
+            <select name="SectionId" class="form-control" required>
+                <option value="">-- Select Section --</option>
+                @foreach(var sec in sections)
+                {
+                    <option value="@sec.Id">@sec.Name</option>
+                }
+            </select>
+        </div>
+        
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-primary">Enroll Student</button>
+            <a asp-action="Enrollments" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        const studentSelect = document.getElementById('studentSelect');
+        const sessionSelect = document.getElementById('sessionSelect');
+        const courseSelect = document.getElementById('courseSelect');
+
+        function loadAvailableCourses() {
+            const studentId = studentSelect.value;
+            const sessionId = sessionSelect.value;
+
+            if (!studentId || !sessionId) {
+                courseSelect.innerHTML = '<option value="">-- Select Student and Session First --</option>';
+                courseSelect.disabled = true;
+                return;
+            }
+
+            courseSelect.disabled = true;
+            courseSelect.innerHTML = '<option value="">Loading...</option>';
+
+            fetch(`/AdminManagement/GetAvailableCourses?studentId=${studentId}&sessionId=${sessionId}`)
+                .then(response => response.json())
+                .then(courses => {
+                    courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+                    
+                    if (courses.length === 0) {
+                        courseSelect.innerHTML = '<option value="">No available courses (student already enrolled in all)</option>';
+                    } else {
+                        courses.forEach(course => {
+                            const option = document.createElement('option');
+                            option.value = course.id;
+                            option.textContent = `${course.name} - ${course.code}`;
+                            courseSelect.appendChild(option);
+                        });
+                        courseSelect.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading courses:', error);
+                    courseSelect.innerHTML = '<option value="">Error loading courses</option>';
+                });
+        }
+
+        studentSelect.addEventListener('change', loadAvailableCourses);
+        sessionSelect.addEventListener('change', loadAvailableCourses);
+    </script>
+}

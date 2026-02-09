@@ -1,0 +1,56 @@
+@using AttendanceSystemMVC.Models
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-5">
+    <h2>Admin Dashboard</h2>
+    <hr />
+
+    <div class="alert alert-info">
+        <p>Welcome to the administration panel. Manage users, courses, and system settings.</p>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Manage Courses</h5>
+                    <p class="card-text">Add, edit, and delete courses.</p>
+                    <a href="@Url.Action("Courses", "Admin")" class="btn btn-light">Go to Courses</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Manage Students</h5>
+                    <p class="card-text">View and approve student accounts.</p>
+                    <a href="@Url.Action("Students", "Admin")" class="btn btn-light">Go to Students</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Manage Teachers</h5>
+                    <p class="card-text">View and manage teacher profiles.</p>
+                    <a href="@Url.Action("Teachers", "Admin")" class="btn btn-light">Go to Teachers</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Stats</h5>
+                    <p>More features coming soon...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

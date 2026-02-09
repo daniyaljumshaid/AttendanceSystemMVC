@@ -1,0 +1,63 @@
+@model IEnumerable<AttendanceSystemMVC.Models.StudentProfile>
+@{
+    ViewData["Title"] = "Students Management";
+}
+
+<div class="container mt-4">
+    <h2>Students Management</h2>
+    <hr />
+
+    <div class="mb-3">
+        <a asp-action="Users" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> Create New Student (via User Management)
+        </a>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <strong>Note:</strong> To create a new student, go to User Management and create a user with the "Student" role.
+        The student profile will be automatically created.
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            No students found. Create a new student to get started.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Roll Number</th>
+                    <th>Full Name</th>
+                    <th>Section</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var student in Model)
+                {
+                    <tr>
+                        <td>@student.Id</td>
+                        <td>@student.RollNumber</td>
+                        <td>@student.FullName</td>
+                        <td>@(student.Section?.Name ?? "N/A")</td>
+                        <td>@(student.ApplicationUser?.Email ?? "N/A")</td>
+                        <td>
+                            <a asp-action="EditStudent" asp-route-id="@student.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-action="DeleteStudent" asp-route-id="@student.Id" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this student?')">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

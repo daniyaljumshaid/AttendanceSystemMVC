@@ -1,0 +1,57 @@
+# .NET
+bin/
+obj/
+publish/
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.sln.docstates
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Publish files
+publish/
+*.zip
+
+# Node modules (if using npm)
+node_modules/
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+
+# Deployment files
+*.pubxml
+*.PublishSettings
+
+# Testing
+TestResults/
+*.trx

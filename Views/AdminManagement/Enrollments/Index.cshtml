@@ -1,0 +1,29 @@
+@model IEnumerable<AttendanceSystemMVC.Models.StudentCourseAssignment>
+
+@{
+    ViewData["Title"] = "Course Assignments";
+}
+
+<h2>Course Assignments</h2>
+<p class="text-muted">Courses assigned to students by admin. Students need to enroll themselves to see courses in "My Courses".</p>
+<a class="btn btn-primary mb-2" asp-action="EnrollStudent">Assign Course to Student</a>
+<table class="table">
+    <thead>
+        <tr><th>Student</th><th>Course</th><th>Session</th><th>Section</th><th>Assigned Date</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+        @foreach(var e in Model)
+        {
+            <tr>
+                <td>@(e.Student?.FullName ?? "Unknown")</td>
+                <td>@(e.Course?.Name ?? "Unknown")</td>
+                <td>@(e.Session?.Name ?? "Unknown")</td>
+                <td>@(e.Section?.Name ?? "Unknown")</td>
+                <td>@e.AssignedDate.ToString("MMM dd, yyyy")</td>
+                <td>
+                    <a class="btn btn-sm btn-danger" asp-action="DeleteEnrollment" asp-route-id="@e.Id" onclick="return confirm('Delete assignment?')">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

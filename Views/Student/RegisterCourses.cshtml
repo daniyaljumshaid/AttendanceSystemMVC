@@ -1,0 +1,332 @@
+@model IEnumerable<AttendanceSystemMVC.Models.CourseSchedule>
+
+@{
+    ViewData["Title"] = "Register for Courses";
+    var enrolledCourseIds = ViewBag.EnrolledCourseIds as List<int> ?? new List<int>();
+    var assignedCourses = ViewBag.AssignedCourses as List<AttendanceSystemMVC.Models.StudentCourseAssignment> ?? new List<AttendanceSystemMVC.Models.StudentCourseAssignment>();
+    var currentSession = ViewBag.CurrentSession as AttendanceSystemMVC.Models.Session;
+    
+    // Get course IDs that have schedules
+    var scheduledCourseIds = Model.Select(m => m.CourseId).Distinct().ToList();
+    // Get assigned courses without schedules
+    var assignedWithoutSchedule = assignedCourses.Where(ac => !scheduledCourseIds.Contains(ac.CourseId)).ToList();
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-book-open"></i> Register for Courses
+            </h2>
+
+            @if (currentSession != null)
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Current Session:</strong> @currentSession.Name
+                    (@currentSession.StartDate.ToString("MMM dd, yyyy") - @currentSession.EndDate.ToString("MMM dd, yyyy"))
+                    <br />
+                    <small class="mt-2 d-block">
+                        <i class="fas fa-arrow-right"></i> 
+                        Courses listed below have been assigned to you. Click <strong>Enroll</strong> to register for each course.
+                        Once enrolled, the course will appear in your <strong>My Courses</strong> section.
+                    </small>
+                </div>
+            }
+
+            @if (!assignedCourses.Any())
+            {
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No courses have been assigned to you by the administrator. Please contact your administrator to assign courses.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @* First show courses with schedules *@
+                    @foreach (var schedule in Model.GroupBy(s => s.CourseId).Select(g => g.First()))
+                    {
+                        bool isEnrolled = enrolledCourseIds.Contains(schedule.CourseId);
+
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 @(isEnrolled ? "border-success" : "")">
+                                <div class="card-header @(isEnrolled ? "bg-success text-white" : "bg-primary text-white")">
+                                    <h5 class="mb-0">
+                                        @(schedule.Course?.Code ?? "N/A")
+                                        @if (isEnrolled)
+                                        {
+                                            <span class="badge bg-light text-success float-end">
+                                                <i class="fas fa-check"></i> Enrolled
+                                            </span>
+                                        }
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">@(schedule.Course?.Name ?? "N/A")</h6>
+
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-chalkboard-teacher"></i>
+                                            <strong>Teacher:</strong> @(schedule.Teacher?.ApplicationUser?.FullName ?? "N/A")
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-users"></i>
+                                            <strong>Section:</strong> @(schedule.Section?.Name ?? "N/A")
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <strong>Day:</strong> @schedule.DayOfWeek
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i>
+                                            <strong>Time:</strong> @schedule.StartTime.ToString(@"hh\:mm") -
+                                            @schedule.EndTime.ToString(@"hh\:mm")
+                                        </small>
+                                    </div>
+
+                                    @if (isEnrolled)
+                                    {
+                                        <button type="button" class="btn btn-danger btn-sm w-100 unenroll-btn"
+                                            data-course-id="@schedule.CourseId">
+                                            <i class="fas fa-times"></i> Unenroll
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-primary btn-sm w-100 enroll-btn"
+                                            data-course-id="@schedule.CourseId">
+                                            <i class="fas fa-plus"></i> Enroll
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    
+                    @* Then show assigned courses without schedules *@
+                    @foreach (var assignment in assignedWithoutSchedule)
+                    {
+                        bool isEnrolled = enrolledCourseIds.Contains(assignment.CourseId);
+
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 @(isEnrolled ? "border-success" : "")">
+                                <div class="card-header @(isEnrolled ? "bg-success text-white" : "bg-primary text-white")">
+                                    <h5 class="mb-0">
+                                        @(assignment.Course?.Code ?? "N/A")
+                                        @if (isEnrolled)
+                                        {
+                                            <span class="badge bg-light text-success float-end">
+                                                <i class="fas fa-check"></i> Enrolled
+                                            </span>
+                                        }
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">@(assignment.Course?.Name ?? "N/A")</h6>
+
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-users"></i>
+                                            <strong>Section:</strong> @(assignment.Section?.Name ?? "N/A")
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar"></i>
+                                            <strong>Session:</strong> @(assignment.Session?.Name ?? "N/A")
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <small class="text-warning">
+                                            <i class="fas fa-info-circle"></i>
+                                            Schedule not yet available
+                                        </small>
+                                    </div>
+
+                                    @if (isEnrolled)
+                                    {
+                                        <button type="button" class="btn btn-danger btn-sm w-100 unenroll-btn"
+                                            data-course-id="@assignment.CourseId">
+                                            <i class="fas fa-times"></i> Unenroll
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-primary btn-sm w-100 enroll-btn"
+                                            data-course-id="@assignment.CourseId">
+                                            <i class="fas fa-plus"></i> Enroll
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                || document.querySelector('meta[name="csrf-token"]')?.content;
+
+            // Enroll button handler
+            document.querySelectorAll('.enroll-btn').forEach(btn => {
+                btn.addEventListener('click', async function () {
+                    const courseId = this.getAttribute('data-course-id');
+                    const button = this;
+                    const card = this.closest('.card');
+
+                    console.log('Enrolling in course ID:', courseId, 'Type:', typeof courseId);
+                    console.log('Parsed course ID:', parseInt(courseId));
+
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enrolling...';
+
+                    try {
+                        const requestBody = { courseId: parseInt(courseId) };
+                        console.log('Request body:', JSON.stringify(requestBody));
+
+                        const response = await fetch('/Student/EnrollInCourse', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify(requestBody)
+                        });
+
+                        const result = await response.json();
+                        console.log('Server response:', result);
+
+                        if (result.success) {
+                            // Update card to enrolled state
+                            card.classList.add('border-success');
+                            card.querySelector('.card-header').classList.remove('bg-primary');
+                            card.querySelector('.card-header').classList.add('bg-success');
+
+                            // Add enrolled badge
+                            const header = card.querySelector('.card-header h5');
+                            header.innerHTML += '<span class="badge bg-light text-success float-end"><i class="fas fa-check"></i> Enrolled</span>';
+
+                            // Replace button
+                            button.outerHTML = `<button type="button" class="btn btn-danger btn-sm w-100 unenroll-btn" data-course-id="${courseId}">
+                                        <i class="fas fa-times"></i> Unenroll
+                                    </button>`;
+
+                            // Re-attach event listener to new button
+                            attachUnenrollHandler(card.querySelector('.unenroll-btn'));
+
+                            // Show success message
+                            showAlert('success', result.message);
+                        } else {
+                            button.disabled = false;
+                            button.innerHTML = '<i class="fas fa-plus"></i> Enroll';
+                            showAlert('danger', result.message);
+                        }
+                    } catch (error) {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="fas fa-plus"></i> Enroll';
+                        showAlert('danger', 'An error occurred while enrolling. Please try again.');
+                        console.error('Enrollment error:', error);
+                    }
+                });
+            });
+
+            // Unenroll button handler
+            function attachUnenrollHandler(btn) {
+                btn.addEventListener('click', async function () {
+                    if (!confirm('Are you sure you want to unenroll from this course?')) {
+                        return;
+                    }
+
+                    const courseId = this.getAttribute('data-course-id');
+                    const button = this;
+                    const card = this.closest('.card');
+
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Unenrolling...';
+
+                    try {
+                        const response = await fetch('/Student/UnenrollFromCourse', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({ courseId: parseInt(courseId) })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            // Update card to not enrolled state
+                            card.classList.remove('border-success');
+                            card.querySelector('.card-header').classList.remove('bg-success');
+                            card.querySelector('.card-header').classList.add('bg-primary');
+
+                            // Remove enrolled badge
+                            const badge = card.querySelector('.badge');
+                            if (badge) badge.remove();
+
+                            // Replace button
+                            button.outerHTML = `<button type="button" class="btn btn-primary btn-sm w-100 enroll-btn" data-course-id="${courseId}">
+                                        <i class="fas fa-plus"></i> Enroll
+                                    </button>`;
+
+                            // Re-attach event listener to new button
+                            card.querySelector('.enroll-btn').addEventListener('click', arguments.callee);
+
+                            // Show success message
+                            showAlert('success', result.message);
+                        } else {
+                            button.disabled = false;
+                            button.innerHTML = '<i class="fas fa-times"></i> Unenroll';
+                            showAlert('danger', result.message);
+                        }
+                    } catch (error) {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="fas fa-times"></i> Unenroll';
+                        showAlert('danger', 'An error occurred while unenrolling. Please try again.');
+                        console.error('Unenrollment error:', error);
+                    }
+                });
+            }
+
+            // Attach to existing unenroll buttons
+            document.querySelectorAll('.unenroll-btn').forEach(attachUnenrollHandler);
+
+            // Alert helper function
+            function showAlert(type, message) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+                alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                alertDiv.innerHTML = `
+                            ${message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                document.body.appendChild(alertDiv);
+
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 5000);
+            }
+        });
+    </script>
+}

@@ -1,0 +1,116 @@
+@model dynamic
+@{
+    ViewData["Title"] = "Reports Dashboard";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-chart-bar"></i> Reports Dashboard</h2>
+    <hr />
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card text-center bg-primary text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalStudents</h4>
+                    <p>Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalTeachers</h4>
+                    <p>Teachers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center bg-warning text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalCourses</h4>
+                    <p>Courses</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center bg-info text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalSections</h4>
+                    <p>Sections</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center bg-danger text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalEnrollments</h4>
+                    <p>Enrollments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center bg-dark text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalCourseAssignments</h4>
+                    <p>Assignments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Links -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-user-graduate"></i> Student Reports</h5>
+                </div>
+                <div class="card-body">
+                    <p>View detailed student enrollment reports.</p>
+                    <a asp-action="StudentEnrollments" class="btn btn-primary btn-sm">Student Enrollments</a>
+                    <a asp-controller="AdminManagement" asp-action="Students" class="btn btn-outline-primary btn-sm">Manage Students</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-chalkboard-teacher"></i> Teacher Reports</h5>
+                </div>
+                <div class="card-body">
+                    <p>View teacher course assignment reports.</p>
+                    <a asp-action="TeacherAssignments" class="btn btn-success btn-sm">Teacher Assignments</a>
+                    <a asp-controller="AdminManagement" asp-action="Teachers" class="btn btn-outline-success btn-sm">Manage Teachers</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5><i class="fas fa-chart-pie"></i> Analytics</h5>
+                </div>
+                <div class="card-body">
+                    <p>View system analytics and statistics.</p>
+                    <a asp-action="Analytics" class="btn btn-warning btn-sm">View Analytics</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-arrow-left"></i> Back to Management</h5>
+                </div>
+                <div class="card-body">
+                    <p>Return to the admin management dashboard.</p>
+                    <a asp-controller="AdminManagement" asp-action="Index" class="btn btn-info btn-sm">Admin Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

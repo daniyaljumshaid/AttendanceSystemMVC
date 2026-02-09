@@ -1,0 +1,13 @@
+@{
+    ViewData["Title"] = "Profile Not Found";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">Student Profile Not Found</h4>
+        <p>Your account does not have an associated student profile. Please contact the administrator to complete your profile or assign you to a section/course.</p>
+    </div>
+
+    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back to Home</a>
+    <a href="@Url.Action("Index", "Student")" class="btn btn-primary ml-2">Back to Dashboard</a>
+</div>

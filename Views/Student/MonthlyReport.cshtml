@@ -1,0 +1,15 @@
+@model AttendanceSystemMVC.ViewModels.StudentMonthlyReportVm
+
+@{
+    ViewData["Title"] = "Monthly Attendance";
+}
+
+<h2>Monthly Attendance - @ViewBag.Month/@ViewBag.Year</h2>
+<table class="table table-bordered">
+    <tr><th>Total Days</th><td>@Model.TotalDays</td></tr>
+    <tr><th>Present</th><td>@Model.Present</td></tr>
+    <tr><th>Absent</th><td>@Model.Absent</td></tr>
+    <tr><th>Percentage</th><td>@Model.Percentage.ToString("0.##")%</td></tr>
+</table>
+
+<a href="@Url.Action("Index","Student")" class="btn btn-secondary">Back</a>

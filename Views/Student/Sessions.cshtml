@@ -1,0 +1,61 @@
+@model IEnumerable<AttendanceSystemMVC.Models.Session>
+
+@{
+    ViewData["Title"] = "Sessions";
+}
+
+<div class="container mt-5">
+    <h2>Academic Sessions</h2>
+    <hr />
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">
+            No sessions available yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Session Name</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var session in Model)
+                    {
+                        var daysLeft = (session.EndDate - DateTime.Today).Days;
+                        var durationDays = (session.EndDate - session.StartDate).Days;
+
+                        <tr>
+                            <td><strong>@session.Name</strong></td>
+                            <td>@session.StartDate.ToShortDateString()</td>
+                            <td>@session.EndDate.ToShortDateString()</td>
+                            <td>
+                                @if (daysLeft > 0)
+                                {
+                                    <span class="badge bg-success">@daysLeft days left</span>
+                                }
+                                else if (daysLeft == 0)
+                                {
+                                    <span class="badge bg-warning">Today is the last day</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Expired</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <a href="@Url.Action("Index", "Student")" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>

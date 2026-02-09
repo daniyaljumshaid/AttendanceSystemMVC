@@ -1,0 +1,430 @@
+﻿@using AttendanceSystemMVC.Models
+@model AttendanceSystemMVC.ViewModels.CurrentClassVm
+@{
+    ViewData["Title"] = "Current Class - " + Model.CourseName;
+}
+
+<div class="container-fluid mt-4">
+    <!-- Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <div class="row">
+        <div class="col-12">
+            <!-- Class Header -->
+            <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <div class="card-body text-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="mb-0">
+                                <i class="fas fa-chalkboard-teacher"></i> @Model.CourseName
+                            </h2>
+                            <p class="mb-0 mt-2">
+                                <i class="fas fa-users"></i> Section @Model.SectionName
+                                <span class="ms-3"><i class="fas fa-clock"></i> @Model.TimeSlot</span>
+                                <span class="ms-3"><i class="fas fa-calendar"></i> @Model.CurrentDate.ToString("dddd, MMMM dd, yyyy")</span>
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-light" onclick="markAllPresent()">
+                                    <i class="fas fa-check-circle text-success"></i> All Present
+                                </button>
+                                <button type="button" class="btn btn-light" onclick="quickSave()">
+                                    <i class="fas fa-save"></i> Quick Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Form -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-clipboard-check"></i> Mark Attendance
+                                <small class="ms-2">(@Model.Attendance.Count students)</small>
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-light" onclick="markAll('Present')">
+                                    <i class="fas fa-check text-success"></i> Present
+                                </button>
+                                <button type="button" class="btn btn-light" onclick="markAll('Absent')">
+                                    <i class="fas fa-times text-danger"></i> Absent
+                                </button>
+                                <button type="button" class="btn btn-light" onclick="markAll('Late')">
+                                    <i class="fas fa-clock text-warning"></i> Late
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    @if (ViewBag.NoStudentsMessage != null)
+                    {
+                        <div class="alert alert-warning m-4" role="alert">
+                            <i class="fas fa-exclamation-triangle"></i> <strong>No Students Enrolled</strong>
+                            <p class="mb-0 mt-2">@ViewBag.NoStudentsMessage</p>
+                            <hr>
+                            <p class="mb-0"><strong>Action Required:</strong> Please contact the administrator to enroll students in this course section.</p>
+                        </div>
+                    }
+                    else if (!Model.Attendance.Any())
+                    {
+                        <div class="alert alert-info m-4" role="alert">
+                            <i class="fas fa-info-circle"></i> <strong>No Attendance Records</strong>
+                            <p class="mb-0">No attendance records found for today. This might be a technical issue. Please try refreshing the page.</p>
+                        </div>
+                    }
+                    else
+                    {
+                    <form asp-action="SaveAttendance" method="post" id="attendanceForm">
+                        @Html.AntiForgeryToken()
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th width="10%">Roll #</th>
+                                        <th width="40%">Student Name</th>
+                                        <th width="35%">Attendance Status</th>
+                                        <th width="15%">Quick Mark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Attendance.Count; i++)
+                                    {
+                                        var student = Model.Attendance[i];
+                                        <tr id="row_@student.Id" class="attendance-row">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge bg-primary fs-6">@student.Student?.RollNumber</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-user text-muted"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold">@student.Student?.ApplicationUser?.FullName</div>
+                                                        <small class="text-muted">@student.Student?.ApplicationUser?.Email</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="hidden" name="edits[@i].Id" value="@student.Id" />
+                                                <div class="btn-group" role="group" data-student-id="@student.Id">
+                                                    <input type="radio" 
+                                                           class="btn-check" 
+                                                           name="edits[@i].Status" 
+                                                           id="present_@student.Id" 
+                                                           value="Present" 
+                                                           @(student.Status == AttendanceStatus.Present ? "checked" : "") />
+                                                    <label class="btn btn-outline-success" for="present_@student.Id">
+                                                        <i class="fas fa-check"></i> Present
+                                                    </label>
+
+                                                    <input type="radio" 
+                                                           class="btn-check" 
+                                                           name="edits[@i].Status" 
+                                                           id="absent_@student.Id" 
+                                                           value="Absent" 
+                                                           @(student.Status == AttendanceStatus.Absent ? "checked" : "") />
+                                                    <label class="btn btn-outline-danger" for="absent_@student.Id">
+                                                        <i class="fas fa-times"></i> Absent
+                                                    </label>
+
+                                                    <input type="radio" 
+                                                           class="btn-check" 
+                                                           name="edits[@i].Status" 
+                                                           id="late_@student.Id" 
+                                                           value="Late" 
+                                                           @(student.Status == AttendanceStatus.Late ? "checked" : "") />
+                                                    <label class="btn btn-outline-warning" for="late_@student.Id">
+                                                        <i class="fas fa-clock"></i> Late
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button type="button" class="btn btn-success btn-sm" onclick="setStatus(@student.Id, 'Present')" title="Mark Present">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="setStatus(@student.Id, 'Absent')" title="Mark Absent">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="attendance-summary">
+                                        <small class="text-muted">
+                                            Present: <span id="presentCount" class="badge bg-success">0</span>
+                                            Absent: <span id="absentCount" class="badge bg-danger">0</span>
+                                            Late: <span id="lateCount" class="badge bg-warning">0</span>
+                                            Total: <span class="badge bg-primary">@Model.Attendance.Count</span>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <button type="submit" class="btn btn-success me-2">
+                                        <i class="fas fa-save"></i> Save Attendance
+                                    </button>
+                                    <a asp-action="AttendanceManagement" 
+                                       asp-route-courseId="@Model.Schedule?.CourseId" 
+                                       asp-route-sectionId="@Model.Schedule?.SectionId" 
+                                       asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                       class="btn btn-outline-primary">
+                                        <i class="fas fa-list"></i> View All Records
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    }
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-chart-bar fa-2x text-info mb-3"></i>
+                            <h6>Monthly Report</h6>
+                            <a asp-action="ClassMonthlyReport" 
+                               asp-route-courseId="@Model.Schedule?.CourseId" 
+                               asp-route-sectionId="@Model.Schedule?.SectionId"
+                               class="btn btn-outline-info btn-sm">
+                                View Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-download fa-2x text-success mb-3"></i>
+                            <h6>Export Attendance</h6>
+                            <button class="btn btn-outline-success btn-sm" onclick="exportAttendance()">
+                                Download CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-clock-rotate-left fa-2x text-warning mb-3"></i>
+                            <h6>Previous Classes</h6>
+                            <a asp-action="AttendanceManagement" class="btn btn-outline-warning btn-sm">
+                                View History
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Update attendance counters
+function updateCounters() {
+    const presentCount = document.querySelectorAll('input[value="Present"]:checked').length;
+    const absentCount = document.querySelectorAll('input[value="Absent"]:checked').length;
+    const lateCount = document.querySelectorAll('input[value="Late"]:checked').length;
+    
+    document.getElementById('presentCount').textContent = presentCount;
+    document.getElementById('absentCount').textContent = absentCount;
+    document.getElementById('lateCount').textContent = lateCount;
+}
+
+// Set individual status
+function setStatus(studentId, status) {
+    const group = document.querySelector(`[data-student-id="${studentId}"]`);
+    const radio = group.querySelector(`input[value="${status}"]`);
+    if (radio) {
+        radio.checked = true;
+        updateCounters();
+        
+        // Visual feedback
+        const row = document.getElementById(`row_${studentId}`);
+        row.classList.add('table-success');
+        setTimeout(() => row.classList.remove('table-success'), 1000);
+    }
+}
+
+// Mark all with specific status
+function markAll(status) {
+    const radios = document.querySelectorAll(`input[value="${status}"]`);
+    radios.forEach(radio => {
+        radio.checked = true;
+    });
+    updateCounters();
+    
+    // Visual feedback
+    document.querySelectorAll('.attendance-row').forEach(row => {
+        row.classList.add('table-info');
+        setTimeout(() => row.classList.remove('table-info'), 1000);
+    });
+}
+
+// Mark all present (shortcut)
+function markAllPresent() {
+    markAll('Present');
+}
+
+// Quick save via AJAX
+function quickSave() {
+    saveAttendance(true);
+}
+
+// Export attendance data
+function exportAttendance() {
+    showToast('CSV export feature will be implemented in next update!', 'info');
+}
+
+// Toast notification
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 5000);
+}
+
+// Save attendance (with AJAX option)
+function saveAttendance(isQuickSave = false) {
+    const form = document.getElementById('attendanceForm');
+    const formData = new FormData(form);
+    
+    // Debug: Log form data
+    console.log('Form data being sent:');
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
+    
+    // Show loading state
+    showToast('Saving attendance...', 'info');
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            showToast(data.message || 'Attendance saved successfully!', 'success');
+            // Optionally reload to show updated data
+            if (!isQuickSave) {
+                setTimeout(() => location.reload(), 1500);
+            }
+        } else {
+            showToast(data.message || 'Failed to save attendance', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error saving attendance. Please try again.', 'danger');
+    });
+}
+
+// Event listeners
+document.addEventListener('change', function(e) {
+    if (e.target.type === 'radio' && e.target.name.includes('Status')) {
+        updateCounters();
+    }
+});
+
+// Initialize counters and form handler on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateCounters();
+    
+    // Handle form submission
+    const form = document.getElementById('attendanceForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveAttendance(false);
+        });
+    }
+});
+</script>
+
+<style>
+.avatar {
+    transition: all 0.3s ease;
+}
+
+.attendance-row:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.btn-group .btn-check:checked + .btn {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+
+.attendance-summary .badge {
+    font-size: 0.75em;
+    margin: 0 2px;
+}
+</style>

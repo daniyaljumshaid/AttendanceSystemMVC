@@ -1,0 +1,128 @@
+@model AttendanceSystemMVC.Models.CourseSchedule
+
+@{
+    ViewData["Title"] = "Edit Course Schedule";
+    var courses = ViewBag.Courses as List<AttendanceSystemMVC.Models.Course> ?? new List<AttendanceSystemMVC.Models.Course>();
+    var teachers = ViewBag.Teachers as List<AttendanceSystemMVC.Models.TeacherProfile> ?? new List<AttendanceSystemMVC.Models.TeacherProfile>();
+    var sections = ViewBag.Sections as List<AttendanceSystemMVC.Models.Section> ?? new List<AttendanceSystemMVC.Models.Section>();
+    var sessions = ViewBag.Sessions as List<AttendanceSystemMVC.Models.Session> ?? new List<AttendanceSystemMVC.Models.Session>();
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-warning text-white">
+            <h2 class="mb-0"><i class="fas fa-edit"></i> Edit Course Schedule</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="EditCourseSchedule" method="post">
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-book"></i> Course</label>
+                            <select asp-for="CourseId" class="form-select" required>
+                                <option value="">-- Select Course --</option>
+                                @foreach(var c in courses)
+                                {
+                                    <option value="@c.Id" selected="@(c.Id == Model.CourseId)">@c.Name (@c.Code)</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CourseId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-chalkboard-teacher"></i> Teacher</label>
+                            <select asp-for="TeacherProfileId" class="form-select" required>
+                                <option value="">-- Select Teacher --</option>
+                                @foreach(var t in teachers)
+                                {
+                                    <option value="@t.Id" selected="@(t.Id == Model.TeacherProfileId)">
+                                        @t.EmployeeId - @(t.ApplicationUser?.FullName ?? "Unknown")
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="TeacherProfileId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-layer-group"></i> Section</label>
+                            <select asp-for="SectionId" class="form-select" required>
+                                <option value="">-- Select Section --</option>
+                                @foreach(var s in sections)
+                                {
+                                    <option value="@s.Id" selected="@(s.Id == Model.SectionId)">@s.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SectionId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-calendar-alt"></i> Session</label>
+                            <select asp-for="SessionId" class="form-select" required>
+                                <option value="">-- Select Session --</option>
+                                @foreach(var s in sessions)
+                                {
+                                    <option value="@s.Id" selected="@(s.Id == Model.SessionId)">@s.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SessionId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-calendar-day"></i> Day of Week</label>
+                            <select asp-for="DayOfWeek" class="form-select" required>
+                                @foreach(var d in Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>())
+                                {
+                                    <option value="@((int)d)" selected="@((int)d == (int)Model.DayOfWeek)">@d</option>
+                                }
+                            </select>
+                            <span asp-validation-for="DayOfWeek" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-clock"></i> Start Time</label>
+                            <input asp-for="StartTime" type="time" class="form-control" required />
+                            <span asp-validation-for="StartTime" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-clock"></i> End Time</label>
+                            <input asp-for="EndTime" type="time" class="form-control" required />
+                            <span asp-validation-for="EndTime" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a asp-action="CourseSchedules" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

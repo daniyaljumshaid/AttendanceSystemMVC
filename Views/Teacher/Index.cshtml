@@ -1,0 +1,320 @@
+@model AttendanceSystemMVC.ViewModels.TeacherDashboardVm
+@{
+    ViewData["Title"] = "Teacher Dashboard";
+}
+
+<div class="container-fluid mt-4">
+    <!-- Welcome Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> @Model.WelcomeMessage</h2>
+                            <p class="mb-0 mt-2">
+                                Employee ID: <strong>@(Model.TeacherProfile?.EmployeeId ?? "N/A")</strong>
+                                @if (Model.CurrentSession != null)
+                                {
+                                    <span class="ms-3">Current Session: <strong>@Model.CurrentSession.Name</strong></span>
+                                }
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <h4 class="mb-0">@DateTime.Now.ToString("dddd, MMMM dd")</h4>
+                            <p class="mb-0">@DateTime.Now.ToString("yyyy")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>@Model.AssignedCourses.Count</h4>
+                            <p class="mb-0">Assigned Courses</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-book fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>@Model.TodaySchedules.Count</h4>
+                            <p class="mb-0">Classes Today</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-day fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>@Model.TotalStudentsToday</h4>
+                            <p class="mb-0">Students Today</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white @(Model.PendingAttendance > 0 ? "bg-warning" : "bg-success")">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>@Model.PendingAttendance</h4>
+                            <p class="mb-0">Pending Attendance</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clipboard-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Current/Next Class -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> Current Class</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.CurrentClass != null)
+                    {
+                        <div class="alert alert-success">
+                            <h6 class="mb-2"><strong>@Model.CurrentClass.Course?.Name</strong></h6>
+                            <p class="mb-1"><i class="fas fa-users"></i> Section: @Model.CurrentClass.Section?.Name</p>
+                            <p class="mb-1"><i class="fas fa-clock"></i> Time: @Model.CurrentClass.StartTime.ToString(@"hh\:mm") - @Model.CurrentClass.EndTime.ToString(@"hh\:mm")</p>
+                            <a asp-action="CurrentClass" class="btn btn-success btn-sm mt-2">
+                                <i class="fas fa-clipboard-check"></i> Mark Attendance
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        var nextClass = Model.TodaySchedules.Where(s => s.StartTime > DateTime.Now.TimeOfDay).FirstOrDefault();
+                        if (nextClass != null)
+                        {
+                            <div class="alert alert-info">
+                                <h6 class="mb-2">Next Class</h6>
+                                <p class="mb-1"><strong>@nextClass.Course?.Name</strong></p>
+                                <p class="mb-1"><i class="fas fa-users"></i> Section: @nextClass.Section?.Name</p>
+                                <p class="mb-0"><i class="fas fa-clock"></i> Time: @nextClass.StartTime.ToString(@"hh\:mm") - @nextClass.EndTime.ToString(@"hh\:mm")</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-secondary">
+                                <i class="fas fa-info-circle"></i> No current or upcoming classes today.
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a asp-action="AttendanceManagement" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-clipboard-list d-block mb-1"></i>
+                                <small>Manage Attendance</small>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a asp-action="MyReports" class="btn btn-outline-info w-100">
+                                <i class="fas fa-chart-bar d-block mb-1"></i>
+                                <small>View Reports</small>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a asp-action="CurrentClass" class="btn btn-outline-success w-100">
+                                <i class="fas fa-chalkboard-teacher d-block mb-1"></i>
+                                <small>Current Class</small>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="#" class="btn btn-outline-secondary w-100" onclick="window.print()">
+                                <i class="fas fa-print d-block mb-1"></i>
+                                <small>Print Schedule</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Schedule -->
+    @if (Model.TodaySchedules.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-calendar-day"></i> Today's Schedule</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Course</th>
+                                        <th>Section</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var schedule in Model.TodaySchedules)
+                                    {
+                                        var now = DateTime.Now.TimeOfDay;
+                                        var status = "";
+                                        var statusClass = "";
+                                        
+                                        if (now < schedule.StartTime)
+                                        {
+                                            status = "Upcoming";
+                                            statusClass = "bg-primary";
+                                        }
+                                        else if (now >= schedule.StartTime && now <= schedule.EndTime)
+                                        {
+                                            status = "Ongoing";
+                                            statusClass = "bg-success";
+                                        }
+                                        else
+                                        {
+                                            status = "Completed";
+                                            statusClass = "bg-secondary";
+                                        }
+
+                                        <tr>
+                                            <td>
+                                                <strong>@schedule.StartTime.ToString(@"hh\:mm") - @schedule.EndTime.ToString(@"hh\:mm")</strong>
+                                            </td>
+                                            <td>@schedule.Course?.Name</td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">@schedule.Section?.Name</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge @statusClass text-white">@status</span>
+                                            </td>
+                                            <td>
+                                                @if (status == "Ongoing")
+                                                {
+                                                    <a asp-action="CurrentClass" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-clipboard-check"></i> Mark Attendance
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a asp-action="AttendanceManagement" 
+                                                       asp-route-courseId="@schedule.CourseId" 
+                                                       asp-route-sectionId="@schedule.SectionId" 
+                                                       asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Weekly Overview -->
+    @if (Model.WeekSchedules.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-calendar-week"></i> Weekly Schedule Overview</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Time</th>
+                                        <th>Course</th>
+                                        <th>Section</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var schedule in Model.WeekSchedules.Take(10))
+                                    {
+                                        <tr>
+                                            <td><strong>@schedule.DayOfWeek</strong></td>
+                                            <td>@schedule.StartTime.ToString(@"hh\:mm") - @schedule.EndTime.ToString(@"hh\:mm")</td>
+                                            <td>@schedule.Course?.Name</td>
+                                            <td>@schedule.Section?.Name</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        @if (Model.WeekSchedules.Count > 10)
+                        {
+                            <div class="card-footer text-center">
+                                <small class="text-muted">Showing first 10 classes. View all in reports section.</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .btn {
+        border-radius: 8px;
+    }
+    
+    .badge {
+        border-radius: 6px;
+    }
+</style>

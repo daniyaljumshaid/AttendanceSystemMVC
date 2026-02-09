@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "Registration Confirmation";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-check-circle"></i> Registration Successful
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-user-check fa-4x text-success"></i>
+                    </div>
+                    <h5 class="card-title">Welcome to the Attendance System!</h5>
+                    <div class="alert alert-success">
+                        @ViewBag.Message
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Next Steps:</strong>
+                        <ul class="list-unstyled mt-2 mb-0">
+                            <li>• Your account has been created successfully</li>
+                            <li>• An administrator will review and approve your account</li>
+                            <li>• You will receive access to the teacher dashboard once approved</li>
+                            <li>• Please keep your login credentials safe</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a asp-action="Login" class="btn btn-success me-2">
+                            <i class="fas fa-sign-in-alt"></i> Go to Login
+                        </a>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">
+                            <i class="fas fa-home"></i> Back to Home
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer text-center text-muted">
+                    <small>
+                        <i class="fas fa-envelope"></i> Questions? Contact: admin@school.local
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

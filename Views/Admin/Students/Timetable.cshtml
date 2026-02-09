@@ -1,0 +1,42 @@
+﻿@model IEnumerable<AttendanceSystemMVC.Models.CourseSchedule>
+
+@{
+    ViewBag.Title = "My Timetable";
+}
+
+<h2>My Timetable</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No timetable available.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped mt-3">
+        <thead class="thead-dark">
+            <tr>
+                <th>Course</th>
+                <th>Teacher</th>
+                <th>Section</th>
+                <th>Session</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cs in Model)
+            {
+                <tr>
+                    <td>@(cs.Course?.Title ?? "N/A")</td>
+                    <td>@(cs.Teacher?.EmployeeId ?? "N/A")</td>
+                    <td>@(cs.Section?.Name ?? "N/A")</td>
+                    <td>@cs.SessionId</td>
+                    <td>@cs.StartTime.ToString(@"hh\:mm")</td>
+                    <td>@cs.EndTime.ToString(@"hh\:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

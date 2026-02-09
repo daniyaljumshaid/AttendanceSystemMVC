@@ -1,0 +1,150 @@
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-user-plus"></i> Create User</h2>
+    <hr />
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+        </div>
+    }
+
+    <form asp-action="CreateUser" method="post" id="createUserForm">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address *</label>
+                    <input name="email" type="email" class="form-control" required placeholder="user@school.com" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="fullName" class="form-label">Full Name *</label>
+                    <input name="fullName" class="form-control" required placeholder="John Doe" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role *</label>
+                    <select name="role" id="roleSelect" class="form-control" required>
+                        <option value="">Select Role</option>
+                        @if (ViewBag.Roles != null)
+                        {
+                            @foreach (string role in ViewBag.Roles)
+                            {
+                                <option value="@role">@role</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password *</label>
+                    <input name="password" type="password" class="form-control" required
+                        placeholder="Minimum 6 characters" />
+                    <div class="form-text">User will be asked to change password on first login (except Admins).</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student-specific fields -->
+        <div id="studentFields" style="display: none;">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Student-specific information required
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="rollNumber" class="form-label">Roll Number *</label>
+                        <input name="rollNumber" type="number" class="form-control" placeholder="Enter roll number"
+                            id="rollNumberInput" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="sectionId" class="form-label">Section *</label>
+                        <select name="sectionId" class="form-control" id="sectionInput">
+                            <option value="">Select Section</option>
+                            @if (ViewBag.Sections != null)
+                            {
+                                @foreach (var sec in ViewBag.Sections)
+                                {
+                                    <option value="@sec.Id">@sec.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher-specific fields -->
+        <div id="teacherFields" style="display: none;">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Teacher-specific information required
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="employeeId" class="form-label">Employee ID *</label>
+                        <input name="employeeId" class="form-control" placeholder="Enter employee ID"
+                            id="employeeIdInput" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create User
+            </button>
+            <a asp-action="Users" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const roleSelect = document.getElementById('roleSelect');
+            const studentFields = document.getElementById('studentFields');
+            const teacherFields = document.getElementById('teacherFields');
+            const rollNumberInput = document.getElementById('rollNumberInput');
+            const sectionInput = document.getElementById('sectionInput');
+            const employeeIdInput = document.getElementById('employeeIdInput');
+
+            roleSelect.addEventListener('change', function () {
+                const selectedRole = this.value;
+
+                // Hide all role-specific fields
+                studentFields.style.display = 'none';
+                teacherFields.style.display = 'none';
+
+                // Remove required attributes
+                rollNumberInput.removeAttribute('required');
+                sectionInput.removeAttribute('required');
+                employeeIdInput.removeAttribute('required');
+
+                // Show and set required for role-specific fields
+                if (selectedRole === 'Student') {
+                    studentFields.style.display = 'block';
+                    rollNumberInput.setAttribute('required', 'required');
+                    sectionInput.setAttribute('required', 'required');
+                } else if (selectedRole === 'Teacher') {
+                    teacherFields.style.display = 'block';
+                    employeeIdInput.setAttribute('required', 'required');
+                }
+            });
+        });
+    </script>
+}

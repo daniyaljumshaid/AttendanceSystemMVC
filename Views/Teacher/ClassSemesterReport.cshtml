@@ -1,0 +1,124 @@
+@model AttendanceSystemMVC.ViewModels.ClassReportVm
+
+@{
+    ViewData["Title"] = "Class Semester Report";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-graduation-cap"></i> Class Semester Report
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.TotalDays == 0)
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                            <h5>No Attendance Records Found</h5>
+                            <p class="mb-0">
+                                There are no attendance records for this course and section in the selected session. 
+                                Please ensure that:
+                            </p>
+                            <ul class="list-unstyled mt-3">
+                                <li><i class="fas fa-check"></i> Students are enrolled in this course for the selected session</li>
+                                <li><i class="fas fa-check"></i> Attendance has been marked for at least one class</li>
+                                <li><i class="fas fa-check"></i> The session dates cover the period you're looking for</li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card text-center bg-info text-white mb-3">
+                                    <div class="card-body">
+                                        <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                                        <h3>@Model.TotalDays</h3>
+                                        <p class="mb-0">Total Records</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-success text-white mb-3">
+                                    <div class="card-body">
+                                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                        <h3>@Model.Present</h3>
+                                        <p class="mb-0">Present</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-danger text-white mb-3">
+                                    <div class="card-body">
+                                        <i class="fas fa-times-circle fa-2x mb-2"></i>
+                                        <h3>@Model.Absent</h3>
+                                        <p class="mb-0">Absent</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-primary text-white mb-3">
+                                    <div class="card-body">
+                                        <i class="fas fa-percentage fa-2x mb-2"></i>
+                                        <h3>@Model.Percentage.ToString("0.##")%</h3>
+                                        <p class="mb-0">Attendance Rate</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Total Attendance Records</strong></td>
+                                    <td>@Model.TotalDays</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td><strong>Present</strong></td>
+                                    <td>@Model.Present</td>
+                                </tr>
+                                <tr class="table-danger">
+                                    <td><strong>Absent</strong></td>
+                                    <td>@Model.Absent</td>
+                                </tr>
+                                <tr class="table-primary">
+                                    <td><strong>Overall Attendance Percentage</strong></td>
+                                    <td><strong>@Model.Percentage.ToString("0.##")%</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+                    
+                    <div class="mt-4">
+                        <a asp-action="MyReports" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Back to Reports
+                        </a>
+                        <a asp-action="AttendanceManagement" 
+                           asp-route-courseId="@Model.CourseId" 
+                           asp-route-sectionId="@Model.SectionId"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-clipboard-list"></i> Manage Attendance
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+</style>

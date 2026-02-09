@@ -1,0 +1,271 @@
+@model List<AttendanceSystemMVC.Models.Enrollment>
+@{
+    ViewData["Title"] = "My Students";
+    var groupedStudents = ViewBag.GroupedStudents as Dictionary<dynamic, List<AttendanceSystemMVC.Models.Enrollment>>;
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-users"></i> My Students
+                        <small class="ms-2">(@Model.Count total enrollments)</small>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (groupedStudents != null && groupedStudents.Any())
+                    {
+                        @foreach (var courseGroup in groupedStudents)
+                        {
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-book text-primary"></i>
+                                                @courseGroup.Key.CourseName
+                                            </h5>
+                                            <small class="text-muted">
+                                                Section @courseGroup.Key.SectionName • @courseGroup.Key.SessionName
+                                            </small>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <span class="badge bg-primary fs-6">@courseGroup.Value.Count Students</span>
+                                            <div class="btn-group btn-group-sm mt-1">
+                                                <a asp-action="AttendanceManagement" 
+                                                   asp-route-courseId="@courseGroup.Key.CourseId" 
+                                                   asp-route-sectionId="@courseGroup.Key.SectionId"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-clipboard-check"></i> Attendance
+                                                </a>
+                                                <a asp-action="ClassMonthlyReport" 
+                                                   asp-route-courseId="@courseGroup.Key.CourseId" 
+                                                   asp-route-sectionId="@courseGroup.Key.SectionId"
+                                                   class="btn btn-outline-info btn-sm">
+                                                    <i class="fas fa-chart-bar"></i> Report
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Roll #</th>
+                                                    <th>Student Name</th>
+                                                    <th>Email</th>
+                                                    <th>Enrollment Date</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var enrollment in courseGroup.Value.OrderBy(e => e.Student?.RollNumber))
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <span class="badge bg-primary">@enrollment.Student?.RollNumber</span>
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
+                                                                    <i class="fas fa-user text-muted"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <div class="fw-bold">@enrollment.Student?.ApplicationUser?.FullName</div>
+                                                                    <small class="text-muted">Student ID: @enrollment.Student?.Id</small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-envelope"></i>
+                                                                @enrollment.Student?.ApplicationUser?.Email
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-calendar-check"></i>
+                                                                Enrolled
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge bg-success">Active</span>
+                                                        </td>
+                                                        <td>
+                                                            <div class="btn-group btn-group-sm">
+                                                                <button type="button" class="btn btn-outline-primary btn-sm" 
+                                                                        onclick="viewStudentDetails(@enrollment.Student?.Id)"
+                                                                        title="View Details">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </button>
+                                                                <button type="button" class="btn btn-outline-info btn-sm" 
+                                                                        onclick="viewAttendanceHistory(@enrollment.Student?.Id, @courseGroup.Key.CourseId, @courseGroup.Key.SectionId)"
+                                                                        title="Attendance History">
+                                                                    <i class="fas fa-history"></i>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <h5>No Students Found</h5>
+                            <p class="mb-0">You don't have any students assigned to your courses yet.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Summary Statistics -->
+            @if (groupedStudents != null && groupedStudents.Any())
+            {
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="card text-center bg-primary text-white">
+                            <div class="card-body">
+                                <i class="fas fa-book fa-2x mb-2"></i>
+                                <h4>@groupedStudents.Count</h4>
+                                <p class="mb-0">Courses Teaching</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center bg-success text-white">
+                            <div class="card-body">
+                                <i class="fas fa-users fa-2x mb-2"></i>
+                                <h4>@Model.Count</h4>
+                                <p class="mb-0">Total Enrollments</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center bg-info text-white">
+                            <div class="card-body">
+                                <i class="fas fa-user-graduate fa-2x mb-2"></i>
+                                <h4>@Model.Select(e => e.Student?.Id).Distinct().Count()</h4>
+                                <p class="mb-0">Unique Students</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center bg-warning text-white">
+                            <div class="card-body">
+                                <i class="fas fa-layer-group fa-2x mb-2"></i>
+                                <h4>@groupedStudents.Select(g => g.Key.SectionId).Distinct().Count()</h4>
+                                <p class="mb-0">Sections</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Student Details Modal -->
+<div class="modal fade" id="studentDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Student Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="studentDetailsContent">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewStudentDetails(studentId) {
+    const modal = new bootstrap.Modal(document.getElementById('studentDetailsModal'));
+    const content = document.getElementById('studentDetailsContent');
+    
+    content.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+    modal.show();
+    
+    // Simulate loading student details
+    setTimeout(() => {
+        content.innerHTML = `
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <div class="bg-primary rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-user-graduate fa-2x text-white"></i>
+                    </div>
+                    <h5>Student Details</h5>
+                </div>
+                <div class="col-md-8">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Student detail view will be implemented in the next update.
+                    </div>
+                </div>
+            </div>
+        `;
+    }, 1000);
+}
+
+function viewAttendanceHistory(studentId, courseId, sectionId) {
+    // Redirect to attendance management with student filter
+    window.location.href = `@Url.Action("AttendanceManagement")?courseId=${courseId}&sectionId=${sectionId}`;
+}
+
+// Search functionality
+function searchStudents() {
+    const input = document.getElementById('studentSearch');
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+}
+</script>
+
+<style>
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.avatar {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.btn-group .btn {
+    border-radius: 6px !important;
+}
+
+.badge {
+    font-size: 0.8em;
+}
+</style>

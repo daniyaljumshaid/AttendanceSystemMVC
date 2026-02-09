@@ -1,0 +1,455 @@
+@{
+    ViewData["Title"] = "Attendance Management";
+    var courses = ViewBag.Courses as IEnumerable<dynamic>;
+    var attendance = ViewBag.Attendance as List<AttendanceSystemMVC.Models.AttendanceRecord>;
+    var selectedDate = (DateTime)ViewBag.SelectedDate;
+    var selectedCourseId = ViewBag.SelectedCourseId as int?;
+    var selectedSectionId = ViewBag.SelectedSectionId as int?;
+}
+
+<div class="container-fluid mt-4">
+    <!-- Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-clipboard-list"></i> Attendance Management</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Filters -->
+                    <form method="get" id="filterForm" class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label for="courseSection" class="form-label">Course & Section</label>
+                            <select name="courseSection" id="courseSection" class="form-select" required>
+                                <option value="">-- Select Course & Section --</option>
+                                @if (courses != null && courses.Any())
+                                {
+                                    var uniqueCourses = courses
+                                    .GroupBy(c => new { c.CourseId, c.SectionId })
+                                    .Select(g => g.First())
+                                    .ToList();
+
+                                    foreach (var course in uniqueCourses)
+                                    {
+                                        var optionValue = $"{course.CourseId}|{course.SectionId}";
+                                        var isSelected = selectedCourseId == course.CourseId && selectedSectionId ==
+                                        course.SectionId;
+                                        var courseName = course.Course?.Name ?? "Unknown Course";
+                                        var sectionName = course.Section?.Name ?? "Unknown Section";
+
+                                        if (isSelected)
+                                        {
+                                            <option value="@optionValue" selected>
+                                                @courseName - Section @sectionName
+                                            </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@optionValue">
+                                                @courseName - Section @sectionName
+                                            </option>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="" disabled>No courses assigned</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" name="date" id="date" class="form-control"
+                                value="@selectedDate.ToString("yyyy-MM-dd")" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Load Attendance
+                                </button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="courseId" id="courseId"
+                            value="@(selectedCourseId?.ToString() ?? "")" />
+                        <input type="hidden" name="sectionId" id="sectionId"
+                            value="@(selectedSectionId?.ToString() ?? "")" />
+                    </form>
+
+                    @if (attendance != null && attendance.Any())
+                    {
+                        <!-- Attendance Table -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div
+                                        class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-users"></i>
+                                            @attendance.First().Course?.Name - Section @attendance.First().Section?.Name
+                                        </h5>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-light btn-sm" onclick="markAll('Present')">
+                                                <i class="fas fa-check-circle text-success"></i> Mark All Present
+                                            </button>
+                                            <button type="button" class="btn btn-light btn-sm" onclick="markAll('Absent')">
+                                                <i class="fas fa-times-circle text-danger"></i> Mark All Absent
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <form asp-action="QuickSaveAttendance" method="post" id="attendanceForm">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="courseId" value="@selectedCourseId" />
+                                            <input type="hidden" name="sectionId" value="@selectedSectionId" />
+                                            <input type="hidden" name="date" value="@selectedDate.ToString("yyyy-MM-dd")" />
+
+                                            <div class="table-responsive">
+                                                <table class="table table-striped mb-0">
+                                                    <thead class="table-dark">
+                                                        <tr>
+                                                            <th>Roll #</th>
+                                                            <th>Student Name</th>
+                                                            <th>Status</th>
+                                                            <th>Quick Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @for (int i = 0; i < attendance.Count; i++)
+                                                        {
+                                                            var record = attendance[i];
+                                                            <tr>
+                                                                <td>
+                                                                    <strong
+                                                                        class="badge bg-primary">@record.Student?.RollNumber</strong>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="d-flex align-items-center">
+                                                                        <i class="fas fa-user-circle text-muted me-2"></i>
+                                                                        @record.Student?.ApplicationUser?.FullName
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="hidden" name="edits[@i].Id"
+                                                                        value="@record.Id" />
+                                                                    <div class="btn-group btn-group-sm" role="group"
+                                                                        data-student-id="@record.Id">
+                                                                        <input type="radio" class="btn-check"
+                                                                            name="edits[@i].Status" id="present_@record.Id"
+                                                                            value="Present" @(record.Status ==
+                                                                                                                                                                AttendanceSystemMVC.Models.AttendanceStatus.Present
+                                                                                                                                                                ? "checked" : "") />
+                                                                    <label class="btn btn-outline-success"
+                                                                        for="present_@record.Id">
+                                                                        <i class="fas fa-check"></i> Present
+                                                                    </label>
+
+                                                                    <input type="radio" class="btn-check"
+                                                                        name="edits[@i].Status" id="absent_@record.Id"
+                                                                        value="Absent" @(record.Status ==
+                                                                                                                                                           AttendanceSystemMVC.Models.AttendanceStatus.Absent ?
+                                                                                                                                                           "checked" : "") />
+                                                                    <label class="btn btn-outline-danger"
+                                                                        for="absent_@record.Id">
+                                                                        <i class="fas fa-times"></i> Absent
+                                                                    </label>
+
+                                                                    <input type="radio" class="btn-check"
+                                                                        name="edits[@i].Status" id="late_@record.Id"
+                                                                        value="Late" @(record.Status ==
+                                                                                                                                                         AttendanceSystemMVC.Models.AttendanceStatus.Late ?
+                                                                                                                                                         "checked" : "") />
+                                                                    <label class="btn btn-outline-warning"
+                                                                        for="late_@record.Id">
+                                                                        <i class="fas fa-clock"></i> Late
+                                                                    </label>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="btn-group btn-group-sm">
+                                                                    <button type="button" class="btn btn-sm btn-success"
+                                                                        onclick="setStatus(@record.Id, 'Present')">
+                                                                        <i class="fas fa-check"></i>
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-sm btn-danger"
+                                                                        onclick="setStatus(@record.Id, 'Absent')">
+                                                                        <i class="fas fa-times"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <button type="submit" class="btn btn-success me-2">
+                                                <i class="fas fa-save"></i> Save Attendance
+                                            </button>
+                                            <button type="button" class="btn btn-info" onclick="generateReport()">
+                                                <i class="fas fa-chart-bar"></i> Generate Report
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Summary -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-chart-pie"></i> Attendance Summary</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-3">
+                                            <h4 class="text-success">@attendance.Count(a => a.Status ==
+                                                                                                AttendanceSystemMVC.Models.AttendanceStatus.Present)</h4>
+                                            <p class="mb-0">Present</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <h4 class="text-danger">@attendance.Count(a => a.Status ==
+                                                                                                AttendanceSystemMVC.Models.AttendanceStatus.Absent)</h4>
+                                            <p class="mb-0">Absent</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <h4 class="text-warning">@attendance.Count(a => a.Status ==
+                                                                                                AttendanceSystemMVC.Models.AttendanceStatus.Late)</h4>
+                                            <p class="mb-0">Late</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <h4 class="text-primary">@attendance.Count</h4>
+                                            <p class="mb-0">Total</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                        }
+                                        else if (selectedCourseId.HasValue)
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No attendance records found for the selected date. Records
+                            will be created automatically when you load attendance.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-secondary">
+                            <i class="fas fa-graduation-cap"></i> Please select a course and date to manage attendance.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize the form on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('AttendanceManagement page loaded');
+
+        const courseSectionSelect = document.getElementById('courseSection');
+        const courseIdInput = document.getElementById('courseId');
+        const sectionIdInput = document.getElementById('sectionId');
+        const filterForm = document.getElementById('filterForm');
+
+        if (!courseSectionSelect || !courseIdInput || !sectionIdInput || !filterForm) {
+            console.error('Required elements not found');
+            return;
+        }
+
+        // Log available options
+        console.log('Dropdown options:', courseSectionSelect.options.length);
+        for (let i = 0; i < courseSectionSelect.options.length; i++) {
+            console.log('Option', i, ':', courseSectionSelect.options[i].value, courseSectionSelect.options[i].text);
+        }
+
+        // Set the selected value if courseId and sectionId are present
+        const courseIdValue = courseIdInput.value;
+        const sectionIdValue = sectionIdInput.value;
+
+        console.log('Current values - CourseId:', courseIdValue, 'SectionId:', sectionIdValue);
+
+        if (courseIdValue && sectionIdValue) {
+            const targetValue = courseIdValue + '|' + sectionIdValue;
+            console.log('Setting dropdown to:', targetValue);
+            courseSectionSelect.value = targetValue;
+
+            if (courseSectionSelect.value !== targetValue) {
+                console.warn('Failed to set dropdown value');
+            }
+        }
+
+        // Add event listener for course section change
+        courseSectionSelect.addEventListener('change', function () {
+            const selectedValue = this.value;
+            console.log('Dropdown changed to:', selectedValue);
+
+            if (selectedValue && selectedValue.includes('|')) {
+                const parts = selectedValue.split('|');
+                courseIdInput.value = parts[0] || '';
+                sectionIdInput.value = parts[1] || '';
+                console.log('Updated - CourseId:', courseIdInput.value, 'SectionId:', sectionIdInput.value);
+            } else {
+                courseIdInput.value = '';
+                sectionIdInput.value = '';
+                console.log('Cleared course and section IDs');
+            }
+        });
+
+        // Add event listener for form submission
+        filterForm.addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent default submission
+
+            const selectedValue = courseSectionSelect.value;
+            const date = document.getElementById('date').value;
+
+            console.log('Form submit - Selected value:', selectedValue, 'Date:', date);
+
+            if (!selectedValue || !selectedValue.includes('|')) {
+                alert('Please select a course and section');
+                return false;
+            }
+
+            if (!date) {
+                alert('Please select a date');
+                return false;
+            }
+
+            // Update hidden fields
+            const parts = selectedValue.split('|');
+            courseIdInput.value = parts[0] || '';
+            sectionIdInput.value = parts[1] || '';
+
+            const courseId = courseIdInput.value;
+            const sectionId = sectionIdInput.value;
+
+            console.log('Submitting with:', { courseId, sectionId, date });
+
+            // Build the URL with query parameters
+            const url = new URL(window.location.origin + '@Url.Action("AttendanceManagement", "Teacher")');
+            url.searchParams.append('courseId', courseId);
+            url.searchParams.append('sectionId', sectionId);
+            url.searchParams.append('date', date);
+
+            console.log('Navigating to:', url.toString());
+
+            // Navigate to the URL
+            window.location.href = url.toString();
+        });
+    });
+
+    function setStatus(recordId, status) {
+        const group = document.querySelector(`[data-student-id="${recordId}"]`);
+        if (!group) return;
+
+        const radio = group.querySelector(`input[value="${status}"]`);
+        if (radio) {
+            radio.checked = true;
+            // Add visual feedback
+            const row = radio.closest('tr');
+            row.classList.add('table-success');
+            setTimeout(() => row.classList.remove('table-success'), 500);
+        }
+    }
+
+    function markAll(status) {
+        const allStatusRadios = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
+        allStatusRadios.forEach(radio => {
+            radio.checked = true;
+        });
+
+        // Visual feedback
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            row.classList.add('table-info');
+            setTimeout(() => row.classList.remove('table-info'), 500);
+        });
+    }
+
+    function generateReport() {
+        console.log('generateReport() called');
+        const courseId = document.getElementById('courseId').value;
+        const sectionId = document.getElementById('sectionId').value;
+        console.log('CourseId:', courseId, 'SectionId:', sectionId);
+
+        if (courseId && sectionId) {
+            const url = '@Url.Action("ClassMonthlyReport", "Teacher")' + `?courseId=${courseId}&sectionId=${sectionId}`;
+            console.log('Opening URL:', url);
+            window.open(url, '_blank');
+        } else {
+            alert('Please select a course and section first');
+        }
+    }
+
+    // Auto-save functionality (optional)
+    let autoSaveTimer;
+    document.addEventListener('change', function (e) {
+        if (e.target.type === 'radio' && e.target.name.includes('Status')) {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                // Could implement auto-save here via AJAX
+                console.log('Auto-save triggered (not yet implemented)');
+            }, 2000);
+        }
+    });
+</script>
+
+<style>
+    .btn-group .btn-check:checked+.btn {
+        box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+    }
+
+    .table th {
+        border-top: none;
+    }
+
+    tbody tr {
+        transition: background-color 0.3s ease;
+    }
+
+    .table-success {
+        background-color: rgba(25, 135, 84, 0.1) !important;
+    }
+
+    .table-info {
+        background-color: rgba(13, 202, 240, 0.1) !important;
+    }
+
+    .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .alert {
+        border-radius: 8px;
+    }
+</style>
+</style>

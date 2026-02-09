@@ -1,0 +1,67 @@
+@model AttendanceSystemMVC.Models.CourseSchedule
+
+@{
+    ViewData["Title"] = "Create Course Schedule";
+    var courses = ViewBag.Courses as List<AttendanceSystemMVC.Models.Course> ?? new List<AttendanceSystemMVC.Models.Course>();
+    var teachers = ViewBag.Teachers as List<AttendanceSystemMVC.Models.TeacherProfile> ?? new List<AttendanceSystemMVC.Models.TeacherProfile>();
+    var sections = ViewBag.Sections as List<AttendanceSystemMVC.Models.Section> ?? new List<AttendanceSystemMVC.Models.Section>();
+    var sessions = ViewBag.Sessions as List<AttendanceSystemMVC.Models.Session> ?? new List<AttendanceSystemMVC.Models.Session>();
+}
+
+<h2>Create Course Schedule</h2>
+<form asp-action="CreateCourseSchedule" method="post">
+    <div class="mb-3">
+        <label>Course</label>
+        <select asp-for="CourseId" class="form-control">
+            @foreach(var c in courses)
+            {
+                <option value="@c.Id">@c.Name (@c.Code)</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Teacher</label>
+        <select asp-for="TeacherProfileId" class="form-control">
+            @foreach(var t in teachers)
+            {
+                <option value="@t.Id">@t.EmployeeId - @(t.ApplicationUser?.FullName)</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Section</label>
+        <select asp-for="SectionId" class="form-control">
+            @foreach(var s in sections)
+            {
+                <option value="@s.Id">@s.Name</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Session</label>
+        <select asp-for="SessionId" class="form-control">
+            @foreach(var s in sessions)
+            {
+                <option value="@s.Id">@s.Name</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Day of Week</label>
+        <select asp-for="DayOfWeek" class="form-control">
+            @foreach(var d in Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>())
+            {
+                <option value="@((int)d)">@d</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Start Time</label>
+        <input asp-for="StartTime" type="time" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>End Time</label>
+        <input asp-for="EndTime" type="time" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>

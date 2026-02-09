@@ -1,0 +1,25 @@
+@model IEnumerable<AttendanceSystemMVC.Models.SectionSession>
+
+@{
+    ViewData["Title"] = "Section Sessions";
+}
+
+<h2>Section Sessions</h2>
+<a class="btn btn-primary mb-2" asp-action="CreateSectionSession">Map Section to Session</a>
+<table class="table">
+    <thead>
+        <tr><th>Section</th><th>Session</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+        @foreach(var ss in Model)
+        {
+            <tr>
+                <td>@(ss.Section?.Name ?? "Unknown")</td>
+                <td>@(ss.Session?.Name ?? "Unknown")</td>
+                <td>
+                    <a class="btn btn-sm btn-danger" asp-action="DeleteSectionSession" asp-route-id="@ss.Id" onclick="return confirm('Remove mapping?')">Remove</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

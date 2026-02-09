@@ -1,0 +1,59 @@
+﻿@model IEnumerable<AttendanceSystemMVC.ViewModels.StudentViewModel>
+
+<div class="container mt-5">
+    <h2>Manage Students</h2>
+    <hr />
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No students registered yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Roll Number</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model)
+                    {
+                        <tr>
+                            <td>@s.FullName</td>
+                            <td>@(s.RollNumber ?? "N/A")</td>
+                            <td>
+                                @if (s.IsApproved)
+                                {
+                                    <span class="badge bg-success">Approved</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Pending</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!s.IsApproved)
+                                {
+                                    <a href="@Url.Action("ApproveStudent", "Admin", new { id = s.Id })" class="btn btn-sm btn-success">Approve</a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("RejectStudent", "Admin", new { id = s.Id })" class="btn btn-sm btn-warning">Revoke</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <a href="@Url.Action("Index", "Admin")" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>

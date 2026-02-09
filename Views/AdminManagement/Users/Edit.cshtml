@@ -1,0 +1,82 @@
+@model AttendanceSystemMVC.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "Edit User";
+    var roles = ViewBag.Roles as string[] ?? new string[0];
+    var userRoles = ViewBag.UserRoles as System.Collections.Generic.IList<string> ?? new List<string>();
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-user-edit"></i> Edit User</h2>
+    <hr />
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+        </div>
+    }
+
+    <form asp-action="EditUser" method="post">
+        <input type="hidden" name="id" value="@Model.Id" />
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input name="email" value="@Model.Email" class="form-control" readonly disabled />
+                    <div class="form-text">Email cannot be changed after user creation.</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="fullName" class="form-label">Full Name *</label>
+                    <input name="fullName" value="@Model.FullName" class="form-control" required />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select name="role" class="form-control">
+                        <option value="">Select Role</option>
+                        @foreach(var r in roles)
+                        {
+                            <option value="@r" selected="@(userRoles.Contains(r))">@r</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input type="hidden" name="isApproved" value="false" />
+                        <input type="checkbox" name="isApproved" value="true" class="form-check-input" id="isApproved" @(Model.IsApproved ? "checked" : "") />
+                        <label class="form-check-label" for="isApproved">
+                            <i class="fas fa-check-circle"></i> Is Approved
+                        </label>
+                    </div>
+                    
+                    <div class="form-check mt-2">
+                        <input type="hidden" name="mustChangePassword" value="false" />
+                        <input type="checkbox" name="mustChangePassword" value="true" class="form-check-input" id="mustChangePassword" @(Model.MustChangePassword ? "checked" : "") />
+                        <label class="form-check-label" for="mustChangePassword">
+                            <i class="fas fa-lock"></i> Must Change Password on Next Login
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            <a asp-action="Users" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>

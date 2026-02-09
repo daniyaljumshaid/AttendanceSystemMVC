@@ -1,0 +1,28 @@
+@model AttendanceSystemMVC.Models.Section
+@{
+    ViewData["Title"] = "Edit Section";
+}
+
+<div class="container mt-4">
+    <h2>Edit Section</h2>
+    <hr />
+
+    <form asp-action="EditSection" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group">
+            <label asp-for="Name" class="control-label"></label>
+            <input asp-for="Name" class="form-control" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a asp-action="Sections" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

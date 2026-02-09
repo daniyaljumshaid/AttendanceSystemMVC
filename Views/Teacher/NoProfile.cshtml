@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "No Teacher Profile";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Profile Not Found
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-user-slash fa-4x text-danger"></i>
+                    </div>
+                    <h5 class="card-title">Teacher Profile Missing</h5>
+                    <p class="card-text">
+                        Your user account exists, but no teacher profile was found. This may happen if:
+                    </p>
+                    <div class="alert alert-warning text-start">
+                        <ul class="mb-0">
+                            <li>Your account was created but profile setup is incomplete</li>
+                            <li>There was an error during registration</li>
+                            <li>Your profile was accidentally removed</li>
+                        </ul>
+                    </div>
+                    <p class="mt-3">
+                        Please contact the system administrator to resolve this issue.
+                    </p>
+                    <div class="mt-4">
+                        <a asp-controller="Account" asp-action="Logout" class="btn btn-secondary me-2">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                        <a href="mailto:admin@school.local" class="btn btn-primary">
+                            <i class="fas fa-envelope"></i> Contact Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

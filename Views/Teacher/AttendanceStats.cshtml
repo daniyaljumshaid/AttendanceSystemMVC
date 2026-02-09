@@ -1,0 +1,339 @@
+@{
+    ViewData["Title"] = "Attendance Statistics";
+    var stats = ViewBag.Stats as List<dynamic>;
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> Attendance Statistics
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (stats != null && stats.Any())
+                    {
+                        <!-- Overall Statistics Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="card text-center bg-primary text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-book fa-2x mb-2"></i>
+                                        <h4>@stats.Count</h4>
+                                        <p class="mb-0">Courses Teaching</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-success text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-users fa-2x mb-2"></i>
+                                        <h4>@stats.Sum(s => (int)s.TotalStudents)</h4>
+                                        <p class="mb-0">Total Students</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-info text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                                        <h4>@stats.Sum(s => (int)s.TotalClasses)</h4>
+                                        <p class="mb-0">Total Classes</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-warning text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-percentage fa-2x mb-2"></i>
+                                        <h4>@(stats.Any() ? Math.Round(stats.Average(s => (double)s.AttendanceRate), 1) : 0)%</h4>
+                                        <p class="mb-0">Average Attendance</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Course Statistics -->
+                        <div class="card">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-list-alt"></i> Course-wise Statistics
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Course</th>
+                                                <th>Section</th>
+                                                <th>Students</th>
+                                                <th>Classes Held</th>
+                                                <th>Total Present</th>
+                                                <th>Total Absent</th>
+                                                <th>Attendance Rate</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var stat in stats)
+                                            {
+                                                var attendanceRate = (double)stat.AttendanceRate;
+                                                var rateClass = attendanceRate >= 80 ? "bg-success" : 
+                                                              attendanceRate >= 60 ? "bg-warning" : "bg-danger";
+                                                
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-book text-primary me-2"></i>
+                                                            <strong>@stat.CourseName</strong>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-primary">Section @stat.SectionName</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info">@stat.TotalStudents</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-secondary">@stat.TotalClasses</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-success">@stat.PresentCount</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-danger">@stat.AbsentCount</span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="progress me-2" style="width: 80px; height: 8px;">
+                                                                <div class="progress-bar @rateClass" 
+                                                                     style="width: @attendanceRate%"></div>
+                                                            </div>
+                                                            <span class="badge @rateClass">@attendanceRate%</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <button type="button" class="btn btn-outline-primary btn-sm" 
+                                                                    onclick="viewDetailedStats('@stat.CourseName', '@stat.SectionName')"
+                                                                    title="View Details">
+                                                                <i class="fas fa-chart-line"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-success btn-sm" 
+                                                                    onclick="generateReport('@stat.CourseName', '@stat.SectionName')"
+                                                                    title="Generate Report">
+                                                                <i class="fas fa-file-alt"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Visual Charts -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-chart-pie"></i> Attendance Distribution
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="attendanceChart" style="max-height: 300px;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-chart-bar"></i> Course Performance
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="performanceChart" style="max-height: 300px;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Insights -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header bg-dark text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-lightbulb"></i> Performance Insights
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            @{
+                                                var bestCourse = stats.OrderByDescending(s => (double)s.AttendanceRate).FirstOrDefault();
+                                                var worstCourse = stats.OrderBy(s => (double)s.AttendanceRate).FirstOrDefault();
+                                                var totalStudents = stats.Sum(s => (int)s.TotalStudents);
+                                                var totalPresent = stats.Sum(s => (int)s.PresentCount);
+                                                var overallRate = totalStudents > 0 ? Math.Round((double)totalPresent / (totalStudents * stats.Sum(s => (int)s.TotalClasses)) * 100, 1) : 0;
+                                            }
+
+                                            <div class="col-md-4">
+                                                <div class="alert alert-success">
+                                                    <i class="fas fa-trophy"></i>
+                                                    <strong>Best Performing Course</strong><br>
+                                                    @bestCourse?.CourseName - Section @bestCourse?.SectionName<br>
+                                                    <span class="badge bg-success">@bestCourse?.AttendanceRate% Attendance</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="alert alert-warning">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                    <strong>Needs Attention</strong><br>
+                                                    @worstCourse?.CourseName - Section @worstCourse?.SectionName<br>
+                                                    <span class="badge bg-warning">@worstCourse?.AttendanceRate% Attendance</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="alert alert-info">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <strong>Overall Performance</strong><br>
+                                                    Teaching @stats.Count courses to @totalStudents students<br>
+                                                    <span class="badge bg-info">@overallRate% Overall Attendance</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <h5>No Statistics Available</h5>
+                            <p class="mb-0">Statistics will be available once you start marking attendance for your classes.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function viewDetailedStats(courseName, sectionName) {
+    alert(`Detailed statistics for ${courseName} - Section ${sectionName} will be implemented in the next update.`);
+}
+
+function generateReport(courseName, sectionName) {
+    alert(`Report generation for ${courseName} - Section ${sectionName} will be implemented in the next update.`);
+}
+
+@if (stats != null && stats.Any())
+{
+    <text>
+    // Attendance Distribution Chart
+    const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+    const totalPresent = @stats.Sum(s => (int)s.PresentCount);
+    const totalAbsent = @stats.Sum(s => (int)s.AbsentCount);
+
+    new Chart(attendanceCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'Absent'],
+            datasets: [{
+                data: [totalPresent, totalAbsent],
+                backgroundColor: ['#28a745', '#dc3545'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Course Performance Chart
+    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+    const courseNames = [@Html.Raw(string.Join(",", stats.Select(s => $"'{s.CourseName} - {s.SectionName}'")))];
+    const attendanceRates = [@Html.Raw(string.Join(",", stats.Select(s => s.AttendanceRate)))];
+
+    new Chart(performanceCtx, {
+        type: 'bar',
+        data: {
+            labels: courseNames,
+            datasets: [{
+                label: 'Attendance Rate (%)',
+                data: attendanceRates,
+                backgroundColor: attendanceRates.map(rate => 
+                    rate >= 80 ? '#28a745' : 
+                    rate >= 60 ? '#ffc107' : '#dc3545'
+                ),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    </text>
+}
+</script>
+
+<style>
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.badge {
+    font-size: 0.8em;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.alert {
+    border-radius: 8px;
+}
+
+.btn {
+    border-radius: 6px;
+}
+</style>

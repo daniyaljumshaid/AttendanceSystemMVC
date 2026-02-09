@@ -1,0 +1,384 @@
+@model List<AttendanceSystemMVC.Models.CourseSchedule>
+@{
+    ViewData["Title"] = "My Calendar";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4 class="mb-0">
+                                <i class="fas fa-calendar-alt"></i> My Teaching Schedule
+                            </h4>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-light btn-sm" onclick="viewMode('week')" id="weekView">
+                                    <i class="fas fa-calendar-week"></i> Week
+                                </button>
+                                <button type="button" class="btn btn-outline-light btn-sm" onclick="viewMode('day')" id="dayView">
+                                    <i class="fas fa-calendar-day"></i> Day
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <!-- Weekly Calendar View -->
+                        <div id="weeklyView">
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        Current week: @DateTime.Now.ToString("MMMM dd") - @DateTime.Now.AddDays(6).ToString("MMMM dd, yyyy")
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered schedule-table">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th style="width: 100px;">Time</th>
+                                            <th>Monday</th>
+                                            <th>Tuesday</th>
+                                            <th>Wednesday</th>
+                                            <th>Thursday</th>
+                                            <th>Friday</th>
+                                            <th>Saturday</th>
+                                            <th>Sunday</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            // Generate time slots from 7 AM to 7 PM
+                                            var timeSlots = new List<TimeSpan>();
+                                            for (int hour = 7; hour <= 19; hour++)
+                                            {
+                                                timeSlots.Add(new TimeSpan(hour, 0, 0));
+                                            }
+                                        }
+
+                                        @foreach (var timeSlot in timeSlots)
+                                        {
+                                            <tr>
+                                                <td class="time-slot bg-light">
+                                                    <strong>@timeSlot.ToString(@"hh\:mm")</strong>
+                                                </td>
+                                                @for (int day = 1; day <= 7; day++) // Monday = 1, Sunday = 0 (but we treat as 7)
+                                                {
+                                                    var dayOfWeek = day == 7 ? DayOfWeek.Sunday : (DayOfWeek)day;
+                                                    var scheduleForSlot = Model.Where(s => 
+                                                        s.DayOfWeek == dayOfWeek &&
+                                                        s.StartTime <= timeSlot &&
+                                                        s.EndTime > timeSlot
+                                                    ).FirstOrDefault();
+
+                                                    <td class="schedule-cell">
+                                                        @if (scheduleForSlot != null)
+                                                        {
+                                                            <div class="schedule-item" data-bs-toggle="tooltip" 
+                                                                 title="@scheduleForSlot.Course?.Name - Section @scheduleForSlot.Section?.Name">
+                                                                <div class="course-name">@scheduleForSlot.Course?.Name</div>
+                                                                <div class="section-name">Section @scheduleForSlot.Section?.Name</div>
+                                                                <div class="time-range">
+                                                                    @scheduleForSlot.StartTime.ToString(@"hh\:mm") - @scheduleForSlot.EndTime.ToString(@"hh\:mm")
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </td>
+                                                }
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Daily View -->
+                        <div id="dailyView" style="display: none;">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header bg-success text-white">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-calendar-day"></i> 
+                                                Today's Schedule - @DateTime.Now.ToString("dddd, MMMM dd, yyyy")
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            @{
+                                                var todaySchedule = Model.Where(s => s.DayOfWeek == DateTime.Now.DayOfWeek).OrderBy(s => s.StartTime);
+                                            }
+
+                                            @if (todaySchedule.Any())
+                                            {
+                                                <div class="timeline">
+                                                    @foreach (var schedule in todaySchedule)
+                                                    {
+                                                        var now = DateTime.Now.TimeOfDay;
+                                                        var isActive = now >= schedule.StartTime && now <= schedule.EndTime;
+                                                        var isPast = now > schedule.EndTime;
+                                                        var isUpcoming = now < schedule.StartTime;
+
+                                                        <div class="timeline-item @(isActive ? "active" : isPast ? "past" : "upcoming")">
+                                                            <div class="timeline-marker">
+                                                                <i class="fas @(isActive ? "fa-play-circle" : isPast ? "fa-check-circle" : "fa-clock")"></i>
+                                                            </div>
+                                                            <div class="timeline-content">
+                                                                <div class="d-flex justify-content-between align-items-start">
+                                                                    <div>
+                                                                        <h6 class="mb-1">@schedule.Course?.Name</h6>
+                                                                        <p class="mb-1 text-muted">Section @schedule.Section?.Name</p>
+                                                                        <p class="mb-0">
+                                                                            <i class="fas fa-clock"></i>
+                                                                            @schedule.StartTime.ToString(@"hh\:mm") - @schedule.EndTime.ToString(@"hh\:mm")
+                                                                        </p>
+                                                                    </div>
+                                                                    <div>
+                                                                        @if (isActive)
+                                                                        {
+                                                                            <a asp-action="CurrentClass" class="btn btn-success btn-sm">
+                                                                                <i class="fas fa-clipboard-check"></i> Mark Attendance
+                                                                            </a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a asp-action="AttendanceManagement" 
+                                                                               asp-route-courseId="@schedule.CourseId" 
+                                                                               asp-route-sectionId="@schedule.SectionId"
+                                                                               class="btn btn-outline-primary btn-sm">
+                                                                                <i class="fas fa-eye"></i> View
+                                                                            </a>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="alert alert-info">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    No classes scheduled for today.
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Schedule Summary -->
+                        <div class="row mt-4">
+                            <div class="col-md-3">
+                                <div class="card text-center bg-primary text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-calendar-week fa-2x mb-2"></i>
+                                        <h4>@Model.GroupBy(s => s.DayOfWeek).Count()</h4>
+                                        <p class="mb-0">Days Teaching</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-success text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-clock fa-2x mb-2"></i>
+                                        <h4>@Model.Count</h4>
+                                        <p class="mb-0">Classes Per Week</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-info text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-book fa-2x mb-2"></i>
+                                        <h4>@Model.GroupBy(s => s.CourseId).Count()</h4>
+                                        <p class="mb-0">Different Courses</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-warning text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-users fa-2x mb-2"></i>
+                                        <h4>@Model.GroupBy(s => s.SectionId).Count()</h4>
+                                        <p class="mb-0">Different Sections</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <h5>No Schedule Found</h5>
+                            <p class="mb-0">You don't have any classes scheduled yet. Contact the administrator for schedule assignment.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewMode(mode) {
+    if (mode === 'week') {
+        document.getElementById('weeklyView').style.display = 'block';
+        document.getElementById('dailyView').style.display = 'none';
+        document.getElementById('weekView').classList.add('btn-light');
+        document.getElementById('weekView').classList.remove('btn-outline-light');
+        document.getElementById('dayView').classList.add('btn-outline-light');
+        document.getElementById('dayView').classList.remove('btn-light');
+    } else {
+        document.getElementById('weeklyView').style.display = 'none';
+        document.getElementById('dailyView').style.display = 'block';
+        document.getElementById('dayView').classList.add('btn-light');
+        document.getElementById('dayView').classList.remove('btn-outline-light');
+        document.getElementById('weekView').classList.add('btn-outline-light');
+        document.getElementById('weekView').classList.remove('btn-light');
+    }
+}
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
+
+<style>
+.schedule-table {
+    font-size: 0.85em;
+}
+
+.schedule-table th {
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 600;
+}
+
+.time-slot {
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 600;
+    background-color: #f8f9fa !important;
+}
+
+.schedule-cell {
+    height: 60px;
+    vertical-align: top;
+    padding: 2px;
+    position: relative;
+}
+
+.schedule-item {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 6px;
+    padding: 8px;
+    height: 100%;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    font-size: 0.75em;
+}
+
+.schedule-item:hover {
+    transform: scale(1.02);
+}
+
+.course-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.section-name {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.time-range {
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-top: 2px;
+}
+
+/* Timeline styles */
+.timeline {
+    position: relative;
+}
+
+.timeline-item {
+    display: flex;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.timeline-marker {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.timeline-item.active .timeline-marker {
+    background-color: #28a745;
+    color: white;
+}
+
+.timeline-item.past .timeline-marker {
+    background-color: #6c757d;
+    color: white;
+}
+
+.timeline-item.upcoming .timeline-marker {
+    background-color: #007bff;
+    color: white;
+}
+
+.timeline-content {
+    flex: 1;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 3px solid #dee2e6;
+}
+
+.timeline-item.active .timeline-content {
+    border-left-color: #28a745;
+    background-color: #d4edda;
+}
+
+.timeline-item.past .timeline-content {
+    border-left-color: #6c757d;
+    opacity: 0.7;
+}
+
+.timeline-item.upcoming .timeline-content {
+    border-left-color: #007bff;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.btn {
+    border-radius: 6px;
+}
+</style>

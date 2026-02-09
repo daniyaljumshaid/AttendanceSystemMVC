@@ -1,0 +1,51 @@
+@model AttendanceSystemMVC.ViewModels.CreateStudentVm
+
+@{
+    ViewData["Title"] = "Create Student";
+    var sections = ViewBag.Sections as List<AttendanceSystemMVC.Models.Section> ?? new
+    List<AttendanceSystemMVC.Models.Section>();
+}
+
+<h2>Create Student</h2>
+<form asp-action="CreateStudent" method="post">
+    <div class="mb-3">
+        <label>Email</label>
+        <input name="Email" value="@Model?.Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label>Full Name</label>
+        <input name="FullName" value="@Model?.FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label>Roll Number</label>
+        <input name="RollNumber" type="number" value="@((Model?.RollNumber).ToString() ?? "0")" class="form-control" />
+        <span asp-validation-for="RollNumber" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label>Section</label>
+        <select name="SectionId" class="form-control">
+            <option value="">-- Select --</option>
+            @foreach (var s in sections)
+            {
+                if (Model != null && Model.SectionId.HasValue && Model.SectionId.Value == s.Id)
+                {
+                    <option value="@s.Id" selected>@s.Name</option>
+                }
+                else
+                {
+                    <option value="@s.Id">@s.Name</option>
+                }
+            }
+        </select>
+        <span asp-validation-for="SectionId" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

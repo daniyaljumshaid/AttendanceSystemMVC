@@ -1,0 +1,155 @@
+@model List<AttendanceSystemMVC.Models.CourseSchedule>
+@{
+    ViewData["Title"] = "My Reports";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> My Teaching Reports
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Generate and view attendance reports for your assigned courses and sections.
+                    </p>
+
+                    @if (Model.Any())
+                    {
+                        <div class="row">
+                            @foreach (var schedule in Model)
+                            {
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-start mb-3">
+                                                <div class="me-3">
+                                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                                                        style="width: 50px; height: 50px;">
+                                                        <i class="fas fa-book text-white"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="card-title mb-1">@schedule.Course?.Name</h6>
+                                                    <p class="card-text text-muted small mb-0">
+                                                        Section @schedule.Section?.Name � @schedule.Session?.Name
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <small class="text-muted">Schedule:</small><br>
+                                                <span class="badge bg-light text-dark">@schedule.DayOfWeek</span>
+                                                <span class="badge bg-light text-dark">@schedule.StartTime.ToString(@"hh\:mm") -
+                                                    @schedule.EndTime.ToString(@"hh\:mm")</span>
+                                            </div>
+
+                                            <div class="btn-group-vertical w-100">
+                                                <a asp-action="ClassMonthlyReport" asp-route-courseId="@schedule.CourseId"
+                                                    asp-route-sectionId="@schedule.SectionId"
+                                                    class="btn btn-outline-primary mb-2">
+                                                    <i class="fas fa-calendar-alt"></i> Monthly Reports
+                                                </a>
+
+                                                <a asp-action="ClassSemesterReport" asp-route-courseId="@schedule.CourseId"
+                                                    asp-route-sectionId="@schedule.SectionId"
+                                                    asp-route-sessionId="@schedule.SessionId"
+                                                    class="btn btn-outline-success mb-2">
+                                                    <i class="fas fa-graduation-cap"></i> Semester Report
+                                                </a>
+
+                                                <a asp-action="AttendanceManagement" asp-route-courseId="@schedule.CourseId"
+                                                    asp-route-sectionId="@schedule.SectionId" class="btn btn-outline-info">
+                                                    <i class="fas fa-clipboard-list"></i> Manage Attendance
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <h5>No Assigned Courses</h5>
+                            <p class="mb-0">You don't have any assigned courses yet. Contact the administrator for course
+                                assignments.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    @if (Model.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card text-center bg-primary text-white">
+                    <div class="card-body">
+                        <i class="fas fa-book fa-2x mb-2"></i>
+                        <h4>@Model.Select(s => s.CourseId).Distinct().Count()</h4>
+                        <p class="mb-0">Courses</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-success text-white">
+                    <div class="card-body">
+                        <i class="fas fa-users fa-2x mb-2"></i>
+                        <h4>@Model.Select(s => s.SectionId).Distinct().Count()</h4>
+                        <p class="mb-0">Sections</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-info text-white">
+                    <div class="card-body">
+                        <i class="fas fa-calendar fa-2x mb-2"></i>
+                        <h4>@Model.Select(s => s.SessionId).Distinct().Count()</h4>
+                        <p class="mb-0">Sessions</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-warning text-white">
+                    <div class="card-body">
+                        <i class="fas fa-clock fa-2x mb-2"></i>
+                        <h4>@Model.Count</h4>
+                        <p class="mb-0">Total Schedules</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .btn-group-vertical .btn {
+        border-radius: 0.375rem !important;
+        margin-bottom: 2px;
+    }
+
+    .dropdown-menu {
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+    }
+
+    .badge {
+        font-size: 0.7em;
+    }
+</style>

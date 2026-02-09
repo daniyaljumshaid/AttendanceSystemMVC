@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Attendance System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        body { 
+            background-color: #f8f9fa; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar { 
+            box-shadow: 0 2px 10px rgba(0,0,0,.1); 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        .navbar-brand { 
+            font-weight: bold; 
+            font-size: 1.4rem; 
+            color: white !important;
+        }
+        .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .navbar-nav .nav-link:hover {
+            color: white !important;
+            transform: translateY(-1px);
+        }
+        .dropdown-menu {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .container { margin-top: 20px; }
+        .navbar-text {
+            color: rgba(255,255,255,0.9) !important;
+        }
+        footer {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                <i class="fas fa-graduation-cap"></i> Attendance System
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        if (User.IsInRole("Student"))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Index"><i class="fas fa-home"></i> Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Courses"><i class="fas fa-book"></i> Courses</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Sessions"><i class="fas fa-calendar"></i> Sessions</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Timetable"><i class="fas fa-clock"></i> Timetable</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="MonthlyReport"><i class="fas fa-chart-bar"></i> My Report</a></li>
+                        }
+                        else if (User.IsInRole("Teacher"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Teacher" asp-action="Index">
+                                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Teacher" asp-action="CurrentClass">
+                                    <i class="fas fa-chalkboard-teacher"></i> Current Class
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Teacher" asp-action="AttendanceManagement">
+                                    <i class="fas fa-clipboard-list"></i> Manage Attendance
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="teacherReportsDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-chart-line"></i> Reports
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Teacher" asp-action="MyReports">
+                                            <i class="fas fa-file-alt"></i> My Reports
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <h6 class="dropdown-header">Quick Reports</h6>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" onclick="generateQuickReport('monthly')">
+                                            <i class="fas fa-calendar-alt"></i> Monthly Report
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" onclick="generateQuickReport('weekly')">
+                                            <i class="fas fa-calendar-week"></i> Weekly Summary
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="AdminManagement" asp-action="Index"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="AdminManagement" asp-action="Users"><i class="fas fa-users"></i> Users</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-graduation-cap"></i> Academic
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="AdminManagement" asp-action="Courses"><i class="fas fa-book"></i> Courses</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminManagement" asp-action="Students"><i class="fas fa-user-graduate"></i> Students</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminManagement" asp-action="Teachers"><i class="fas fa-chalkboard-teacher"></i> Teachers</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminManagement" asp-action="Sections"><i class="fas fa-layer-group"></i> Sections</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminManagement" asp-action="Sessions"><i class="fas fa-calendar-alt"></i> Sessions</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="assignmentDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cogs"></i> Assignments
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="AdminManagement" asp-action="AssignTeacher"><i class="fas fa-user-tie"></i> Assign Teachers</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminManagement" asp-action="EnrollStudent"><i class="fas fa-user-plus"></i> Enroll Students</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminManagement" asp-action="AssignStudentsToSection"><i class="fas fa-users-cog"></i> Assign to Sections</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminManagement" asp-action="CourseSchedules"><i class="fas fa-calendar-plus"></i> Course Schedules</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Reports" asp-action="Index">
+                                    <i class="fas fa-chart-bar"></i> Reports
+                                </a>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index"><i class="fas fa-home"></i> Home</a></li>
+                    }
+                </ul>
+
+                <ul class="navbar-nav ms-auto">
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i> @User.Identity.Name
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">Account</h6></li>
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword"><i class="fas fa-key"></i> Change Password</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register"><i class="fas fa-user-plus"></i> Register (Teacher)</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        @RenderBody()
+    </div>
+
+    <footer class="mt-5 py-4 text-center">
+        <p class="mb-0">&copy; 2025 Attendance Management System. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function generateQuickReport(type) {
+            // Placeholder for quick report generation
+            alert(`Generating ${type} report... (Feature coming soon)`);
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

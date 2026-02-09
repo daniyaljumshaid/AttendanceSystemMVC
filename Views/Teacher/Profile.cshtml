@@ -1,0 +1,221 @@
+@model AttendanceSystemMVC.Models.TeacherProfile
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-circle"></i> Teacher Profile
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <!-- Profile Picture Section -->
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="rounded-circle mx-auto bg-primary d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                                            <i class="fas fa-user-tie fa-3x text-white"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title">@(Model.ApplicationUser?.FullName ?? "Teacher Name")</h5>
+                                    <p class="text-muted">@(Model.ApplicationUser?.Email ?? "No email")</p>
+                                    <span class="badge @(Model.ApplicationUser?.IsApproved == true ? "bg-success" : "bg-warning")">
+                                        @(Model.ApplicationUser?.IsApproved == true ? "Approved" : "Pending Approval")
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Quick Stats -->
+                            <div class="card mt-3">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">Quick Stats</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <h4 class="text-primary">
+                                                <i class="fas fa-book"></i>
+                                            </h4>
+                                            <small>Assigned Courses</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <h4 class="text-success">
+                                                <i class="fas fa-users"></i>
+                                            </h4>
+                                            <small>Total Students</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            @if (TempData["Success"] != null)
+                            {
+                                <div class="alert alert-success alert-dismissible fade show">
+                                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            }
+
+                            <form asp-action="UpdateProfile" method="post">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="FullName" class="form-label">Full Name</label>
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   name="ApplicationUser.FullName" 
+                                                   value="@(Model.ApplicationUser?.FullName ?? "")" 
+                                                   required />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="EmployeeId" class="form-label">Employee ID</label>
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   asp-for="EmployeeId" 
+                                                   placeholder="Enter employee ID" />
+                                            <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="Email" class="form-label">Email Address</label>
+                                            <input type="email" 
+                                                   class="form-control" 
+                                                   value="@(Model.ApplicationUser?.Email ?? "")" 
+                                                   readonly />
+                                            <div class="form-text">Contact admin to change email address.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="PhoneNumber" class="form-label">Phone Number</label>
+                                            <input type="tel" 
+                                                   class="form-control" 
+                                                   name="ApplicationUser.PhoneNumber" 
+                                                   value="@(Model.ApplicationUser?.PhoneNumber ?? "")" 
+                                                   placeholder="Enter phone number" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Account Status</label>
+                                            <div class="form-control-plaintext">
+                                                @if (Model.ApplicationUser?.IsApproved == true)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check-circle"></i> Approved
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-clock"></i> Pending Approval
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Member Since</label>
+                                            <div class="form-control-plaintext">
+                                                <i class="fas fa-calendar-alt text-muted"></i>
+                                                Registration Date
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="fas fa-save"></i> Update Profile
+                                    </button>
+                                    <a asp-action="Index" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0"><i class="fas fa-clock"></i> Schedule Overview</h6>
+                        </div>
+                        <div class="card-body text-center">
+                            <a asp-action="Calendar" class="btn btn-success">
+                                <i class="fas fa-calendar-alt"></i> View My Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0"><i class="fas fa-users"></i> My Students</h6>
+                        </div>
+                        <div class="card-body text-center">
+                            <a asp-action="MyStudents" class="btn btn-info">
+                                <i class="fas fa-user-graduate"></i> View All Students
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-warning text-white">
+                            <h6 class="mb-0"><i class="fas fa-chart-bar"></i> Statistics</h6>
+                        </div>
+                        <div class="card-body text-center">
+                            <a asp-action="AttendanceStats" class="btn btn-warning">
+                                <i class="fas fa-analytics"></i> View Statistics
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+</style>

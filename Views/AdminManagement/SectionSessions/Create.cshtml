@@ -1,0 +1,30 @@
+@model AttendanceSystemMVC.Models.SectionSession
+
+@{
+    ViewData["Title"] = "Create Section-Session Mapping";
+    var sections = ViewBag.Sections as List<AttendanceSystemMVC.Models.Section> ?? new List<AttendanceSystemMVC.Models.Section>();
+    var sessions = ViewBag.Sessions as List<AttendanceSystemMVC.Models.Session> ?? new List<AttendanceSystemMVC.Models.Session>();
+}
+
+<h2>Create Section-Session Mapping</h2>
+<form asp-action="CreateSectionSession" method="post">
+    <div class="mb-3">
+        <label>Section</label>
+        <select asp-for="SectionId" class="form-control">
+            @foreach(var s in sections)
+            {
+                <option value="@s.Id">@s.Name</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Session</label>
+        <select asp-for="SessionId" class="form-control">
+            @foreach(var s in sessions)
+            {
+                <option value="@s.Id">@s.Name</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>

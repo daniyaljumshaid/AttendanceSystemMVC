@@ -1,0 +1,205 @@
+@model IEnumerable<AttendanceSystemMVC.Models.AttendanceRecord>
+
+@{
+    ViewData["Title"] = "Attendance Report";
+    var courses = ViewBag.Courses as List<AttendanceSystemMVC.Models.Course> ?? new List<AttendanceSystemMVC.Models.Course>();
+    var students = ViewBag.Students as List<AttendanceSystemMVC.Models.StudentProfile> ?? new List<AttendanceSystemMVC.Models.StudentProfile>();
+    var sections = ViewBag.Sections as List<AttendanceSystemMVC.Models.Section> ?? new List<AttendanceSystemMVC.Models.Section>();
+    var sessions = ViewBag.Sessions as List<AttendanceSystemMVC.Models.Session> ?? new List<AttendanceSystemMVC.Models.Session>();
+    var stats = ViewBag.Stats;
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-chart-bar"></i> Attendance Report</h2>
+            <p class="text-muted">Filter and analyze attendance records</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-filter"></i> Filters</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="AttendanceReport">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Course</label>
+                        <select name="courseId" class="form-select">
+                            <option value="">All Courses</option>
+                            @foreach (var course in courses)
+                            {
+                                <option value="@course.Id" selected="@(ViewBag.SelectedCourseId == course.Id)">
+                                    @course.Code - @course.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Student</label>
+                        <select name="studentId" class="form-select">
+                            <option value="">All Students</option>
+                            @foreach (var student in students)
+                            {
+                                <option value="@student.Id" selected="@(ViewBag.SelectedStudentId == student.Id)">
+                                    @student.RollNumber - @(student.ApplicationUser?.FullName ?? "N/A")
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Section</label>
+                        <select name="sectionId" class="form-select">
+                            <option value="">All Sections</option>
+                            @foreach (var sec in sections)
+                            {
+                                <option value="@sec.Id" selected="@(ViewBag.SelectedSectionId == sec.Id)">
+                                    @sec.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Session</label>
+                        <select name="sessionId" class="form-select">
+                            <option value="">All Sessions</option>
+                            @foreach (var sess in sessions)
+                            {
+                                <option value="@sess.Id" selected="@(ViewBag.SelectedSessionId == sess.Id)">
+                                    @sess.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+                    </div>
+
+                    <div class="col-md-6 mb-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-search"></i> Apply Filters
+                        </button>
+                        <a asp-action="AttendanceReport" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    @if (stats != null && stats.TotalRecords > 0)
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Records</h5>
+                        <h2 class="mb-0">@stats.TotalRecords</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">Present</h5>
+                        <h2 class="mb-0">@stats.TotalPresent</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">Absent</h5>
+                        <h2 class="mb-0">@stats.TotalAbsent</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h5 class="card-title">Attendance %</h5>
+                        <h2 class="mb-0">@stats.AttendancePercentage%</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Results Table -->
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="fas fa-table"></i> Attendance Records (@Model.Count())</h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No attendance records found for the selected filters.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Date</th>
+                                <th>Student</th>
+                                <th>Roll No</th>
+                                <th>Course</th>
+                                <th>Section</th>
+                                <th>Status</th>
+                                <th>Marked By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var record in Model)
+                            {
+                                <tr>
+                                    <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                    <td>@(record.Student?.ApplicationUser?.FullName ?? "N/A")</td>
+                                    <td>@(record.Student != null ? record.Student.RollNumber.ToString() : "N/A")</td>
+                                    <td>@(record.Course?.Code ?? "N/A") - @(record.Course?.Name ?? "N/A")</td>
+                                    <td>@(record.Section?.Name ?? "N/A")</td>
+                                    <td>
+                                        @if (record.Status == AttendanceSystemMVC.Models.AttendanceStatus.Present)
+                                        {
+                                            <span class="badge bg-success">Present</span>
+                                        }
+                                        else if (record.Status == AttendanceSystemMVC.Models.AttendanceStatus.Absent)
+                                        {
+                                            <span class="badge bg-danger">Absent</span>
+                                        }
+                                        else if (record.Status == AttendanceSystemMVC.Models.AttendanceStatus.Late)
+                                        {
+                                            <span class="badge bg-warning">Late</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Unmarked</span>
+                                        }
+                                    </td>
+                                    <td>@(record.MarkedByTeacher?.ApplicationUser?.FullName ?? "N/A")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

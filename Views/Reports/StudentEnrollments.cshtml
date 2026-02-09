@@ -1,0 +1,55 @@
+@model IEnumerable<AttendanceSystemMVC.Models.Enrollment>
+@{
+    ViewData["Title"] = "Student Enrollments Report";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-user-graduate"></i> Student Enrollments Report</h2>
+    <hr />
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Student</th>
+                        <th>Roll No.</th>
+                        <th>Course</th>
+                        <th>Section</th>
+                        <th>Session</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var enrollment in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@(enrollment.Student?.ApplicationUser?.FullName ?? "Unknown")</strong><br />
+                                <small class="text-muted">@(enrollment.Student?.ApplicationUser?.Email ?? "N/A")</small>
+                            </td>
+                            <td>@(enrollment.Student?.RollNumber ?? 0)</td>
+                            <td>
+                                <strong>@(enrollment.Course?.Name ?? "Unknown")</strong><br />
+                                <small class="text-muted">Code: @(enrollment.Course?.Code ?? "N/A")</small>
+                            </td>
+                            <td>@(enrollment.Section?.Name ?? "Unknown")</td>
+                            <td>@(enrollment.Session?.Name ?? "Unknown")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No student enrollments found.
+        </div>
+    }
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Reports</a>
+        <a asp-controller="AdminManagement" asp-action="Enrollments" class="btn btn-primary"><i class="fas fa-cogs"></i> Manage Enrollments</a>
+    </div>
+</div>

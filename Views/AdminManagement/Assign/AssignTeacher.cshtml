@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Assign Teacher to Course";
+
+    var teachers = ViewBag.Teachers as List<AttendanceSystemMVC.Models.TeacherProfile> ?? new List<AttendanceSystemMVC.Models.TeacherProfile>();
+    var courses = ViewBag.Courses as List<AttendanceSystemMVC.Models.Course> ?? new List<AttendanceSystemMVC.Models.Course>();
+    var sessions = ViewBag.Sessions as List<AttendanceSystemMVC.Models.Session> ?? new List<AttendanceSystemMVC.Models.Session>();
+    var sections = ViewBag.Sections as List<AttendanceSystemMVC.Models.Section> ?? new List<AttendanceSystemMVC.Models.Section>();
+}
+
+<div class="container mt-4">
+    <h2>Assign Teacher to Course</h2>
+    <hr />
+
+    <form asp-action="AssignTeacher" method="post">
+        <div class="mb-3">
+            <label>Teacher</label>
+            <select name="TeacherProfileId" class="form-control" required>
+                <option value="">-- Select Teacher --</option>
+                @foreach(var t in teachers)
+                {
+                    <option value="@t.Id">@t.EmployeeId - @(t.ApplicationUser?.FullName ?? "N/A")</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Course</label>
+            <select name="CourseId" class="form-control" required>
+                <option value="">-- Select Course --</option>
+                @foreach(var c in courses)
+                {
+                    <option value="@c.Id">@c.Name - @c.Code</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Session</label>
+            <select name="SessionId" class="form-control" required>
+                <option value="">-- Select Session --</option>
+                @foreach(var s in sessions)
+                {
+                    <option value="@s.Id">@s.Name</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Section</label>
+            <select name="SectionId" class="form-control" required>
+                <option value="">-- Select Section --</option>
+                @foreach(var sec in sections)
+                {
+                    <option value="@sec.Id">@sec.Name</option>
+                }
+            </select>
+        </div>
+        
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-primary">Assign Teacher</button>
+            <a asp-action="CourseAssignments" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

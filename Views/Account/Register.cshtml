@@ -1,0 +1,216 @@
+@model AttendanceSystemMVC.ViewModels.TeacherRegistrationVm
+
+@{
+    ViewData["Title"] = "Teacher Registration";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chalkboard-teacher"></i> Teacher Registration
+                    </h4>
+                    <p class="mb-0 mt-2">Join our attendance management system</p>
+                </div>
+                <div class="card-body p-4">
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+                        </div>
+                    }
+
+                    <form asp-action="Register" method="post" id="registrationForm">
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">
+                                <i class="fas fa-envelope text-primary"></i> Email Address *
+                            </label>
+                            <input asp-for="Email" class="form-control form-control-lg"
+                                placeholder="your.email@school.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                            <div class="form-text">This will be your username for logging in</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label">
+                                <i class="fas fa-user text-primary"></i> Full Name *
+                            </label>
+                            <input asp-for="FullName" class="form-control form-control-lg"
+                                placeholder="Enter your full name" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="EmployeeId" class="form-label">
+                                <i class="fas fa-id-badge text-primary"></i> Employee ID *
+                            </label>
+                            <input asp-for="EmployeeId" class="form-control form-control-lg"
+                                placeholder="T001, EMP-2024-001, etc." />
+                            <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                            <div class="form-text">Your unique employee identifier</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Department" class="form-label">
+                                <i class="fas fa-building text-primary"></i> Department
+                            </label>
+                            <input asp-for="Department" class="form-control form-control-lg"
+                                placeholder="Computer Science, Mathematics, etc." />
+                            <span asp-validation-for="Department" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label">
+                                <i class="fas fa-phone text-primary"></i> Phone Number
+                            </label>
+                            <input asp-for="Phone" class="form-control form-control-lg" placeholder="+1234567890" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">
+                                <i class="fas fa-lock text-primary"></i> Password *
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="Password" class="form-control form-control-lg"
+                                    placeholder="Enter a strong password" />
+                                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()"
+                                    id="passwordToggle">
+                                    <i class="fas fa-eye" id="passwordIcon"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                            <div class="form-text">
+                                <small>Password requirements:</small>
+                                <ul class="small mt-1 mb-0">
+                                    <li>At least 6 characters long</li>
+                                    <li>Must contain uppercase letter</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label">
+                                <i class="fas fa-lock text-primary"></i> Confirm Password *
+                            </label>
+                            <input asp-for="ConfirmPassword" class="form-control form-control-lg"
+                                placeholder="Re-enter your password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Please Note:</strong> Your account will require administrator approval before you
+                            can access the system.
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus"></i> Register as Teacher
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <p class="text-muted">Already have an account?</p>
+                        <a asp-action="Login" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login Here
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer text-center bg-light">
+                    <small class="text-muted">
+                        <i class="fas fa-question-circle"></i> Need help? Contact: admin@school.local
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('Password');
+            const passwordIcon = document.getElementById('passwordIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.className = 'fas fa-eye';
+            }
+        }
+    </script>
+}
+}
+
+return true;
+});
+
+// Real-time password validation feedback
+document.getElementById('password').addEventListener('input', function(e) {
+const password = e.target.value;
+const formText = e.target.parentNode.parentNode.querySelector('.form-text');
+
+let requirements = [];
+if (password.length >= 6) {
+requirements.push('<li class="text-success">? At least 6 characters long</li>');
+} else {
+requirements.push('<li class="text-danger">? At least 6 characters long</li>');
+}
+
+if (/[A-Z]/.test(password)) {
+requirements.push('<li class="text-success">? Must contain uppercase letter</li>');
+} else {
+requirements.push('<li class="text-danger">? Must contain uppercase letter</li>');
+}
+
+requirements.push('<li class="text-success">? Cannot contain special characters</li>');
+
+formText.innerHTML = `<small>Password requirements:</small>
+<ul class="small mt-1 mb-0">${requirements.join('')}</ul>`;
+});
+</script>
+
+<style>
+    .card {
+        border-radius: 15px;
+    }
+
+    .form-control-lg {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-lg:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    .btn-lg {
+        border-radius: 10px;
+        padding: 12px 24px;
+    }
+
+    .alert {
+        border-radius: 10px;
+    }
+
+    .input-group .btn {
+        border-radius: 0 10px 10px 0;
+    }
+
+    .form-text ul li {
+        margin-bottom: 2px;
+    }
+</style>

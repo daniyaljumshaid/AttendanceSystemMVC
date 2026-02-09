@@ -1,0 +1,229 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin: -20px -15px 40px -15px;
+        border-radius: 0 0 50px 50px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .feature-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        height: 100%;
+    }
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .dashboard-btn {
+        padding: 15px 40px;
+        font-size: 1.1rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .dashboard-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+    .demo-credentials {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+    .credential-item {
+        padding: 15px;
+        margin: 10px 0;
+        background: white;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+    }
+</style>
+
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-3 font-weight-bold mb-3">
+            <i class="fas fa-graduation-cap"></i> Attendance Management System
+        </h1>
+        <p class="lead mb-4" style="font-size: 1.3rem;">
+            Streamline attendance tracking for academic institutions with efficiency and transparency
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <div class="text-center mb-5">
+            <h2 class="mb-4">Welcome back, <strong>@User.Identity.Name</strong>!</h2>
+            @if (User?.IsInRole("Admin") == true)
+            {
+                <a class="btn btn-primary dashboard-btn m-2" href="@Url.Action("Index", "AdminManagement")">
+                    <i class="fas fa-tachometer-alt"></i> Go to Admin Dashboard
+                </a>
+            }
+            else if (User?.IsInRole("Teacher") == true)
+            {
+                <a class="btn btn-success dashboard-btn m-2" href="@Url.Action("Index", "Teacher")">
+                    <i class="fas fa-chalkboard-teacher"></i> Go to Teacher Dashboard
+                </a>
+            }
+            else if (User?.IsInRole("Student") == true)
+            {
+                <a class="btn btn-info dashboard-btn m-2" href="@Url.Action("Index", "Student")">
+                    <i class="fas fa-user-graduate"></i> Go to Student Dashboard
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center mb-5">
+            <h2 class="mb-4">Please login to access the system</h2>
+            <a href="@Url.Action("Login", "Account")" class="btn btn-primary dashboard-btn">
+                <i class="fas fa-sign-in-alt"></i> Login Now
+            </a>
+        </div>
+    }
+
+    <!-- Features Section -->
+    <div class="row mt-5 mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h4 class="card-title font-weight-bold">Secure Authentication</h4>
+                    <p class="card-text text-muted">
+                        Role-based access control with secure login for Admin, Teachers, and Students
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <h4 class="card-title font-weight-bold">Real-Time Tracking</h4>
+                    <p class="card-text text-muted">
+                        Mark attendance instantly and view records in real-time with comprehensive dashboards
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4 class="card-title font-weight-bold">Advanced Reports</h4>
+                    <p class="card-text text-muted">
+                        Generate detailed attendance reports with filters and analytics for better insights
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (User?.Identity?.IsAuthenticated != true)
+    {
+        <!-- Demo Credentials Section -->
+        <div class="demo-credentials mt-5">
+            <h4 class="text-center mb-4">
+                <i class="fas fa-key"></i> Demo Credentials
+            </h4>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="credential-item">
+                        <h6 class="font-weight-bold text-primary">
+                            <i class="fas fa-user-shield"></i> Admin
+                        </h6>
+                        <p class="mb-1"><small class="text-muted">Email:</small> <code>admin@school.local</code></p>
+                        <p class="mb-0"><small class="text-muted">Password:</small> <code>Admin@123</code></p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="credential-item">
+                        <h6 class="font-weight-bold text-success">
+                            <i class="fas fa-chalkboard-teacher"></i> Teacher
+                        </h6>
+                        <p class="mb-1"><small class="text-muted">Email:</small> <code>teacher@school.local</code></p>
+                        <p class="mb-0"><small class="text-muted">Password:</small> <code>Teacher@123</code></p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="credential-item">
+                        <h6 class="font-weight-bold text-info">
+                            <i class="fas fa-user-graduate"></i> Student
+                        </h6>
+                        <p class="mb-1"><small class="text-muted">Email:</small> <code>student@school.local</code></p>
+                        <p class="mb-0"><small class="text-muted">Password:</small> <code>Student@123</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Statistics Section for Authenticated Users -->
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <div class="row mt-5">
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-primary feature-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-book fa-3x mb-3"></i>
+                        <h5 class="card-title">Courses</h5>
+                        <p class="card-text">Manage all courses</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-success feature-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-user-graduate fa-3x mb-3"></i>
+                        <h5 class="card-title">Students</h5>
+                        <p class="card-text">Student management</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-info feature-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chalkboard-teacher fa-3x mb-3"></i>
+                        <h5 class="card-title">Teachers</h5>
+                        <p class="card-text">Faculty management</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-warning feature-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-check fa-3x mb-3"></i>
+                        <h5 class="card-title">Attendance</h5>
+                        <p class="card-text">Track attendance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

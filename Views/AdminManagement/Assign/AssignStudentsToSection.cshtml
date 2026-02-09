@@ -1,0 +1,68 @@
+@{
+    ViewData["Title"] = "Assign Students to Section";
+
+    var students = ViewBag.Students as List<AttendanceSystemMVC.Models.StudentProfile> ?? new List<AttendanceSystemMVC.Models.StudentProfile>();
+    var sections = ViewBag.Sections as List<AttendanceSystemMVC.Models.Section> ?? new List<AttendanceSystemMVC.Models.Section>();
+}
+
+<div class="container mt-4">
+    <h2>Assign Students to Section</h2>
+    <hr />
+
+    <form asp-action="AssignStudentsToSection" method="post">
+        <div class="mb-3">
+            <label>Select Section</label>
+            <select name="sectionId" class="form-control" required>
+                <option value="">-- Select Section --</option>
+                @foreach(var s in sections)
+                {
+                    <option value="@s.Id">@s.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Select Students</label>
+            <div class="card">
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    <div class="form-check mb-2">
+                        <input type="checkbox" id="selectAll" class="form-check-input" />
+                        <label class="form-check-label fw-bold" for="selectAll">Select All</label>
+                    </div>
+                    <hr />
+                    @foreach(var student in students)
+                    {
+                        <div class="form-check mb-2">
+                            <input type="checkbox" name="studentIds" value="@student.Id" class="form-check-input student-checkbox" id="student_@student.Id" />
+                            <label class="form-check-label" for="student_@student.Id">
+                                @student.RollNumber - @(student.FullName ?? student.ApplicationUser?.FullName ?? "N/A") 
+                                <small class="text-muted">(Current: @(student.Section?.Name ?? "Unassigned"))</small>
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-primary">Assign Selected Students</button>
+            <a asp-action="Students" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('selectAll').addEventListener('change', function() {
+            var checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = document.getElementById('selectAll').checked;
+            });
+        });
+    </script>
+}

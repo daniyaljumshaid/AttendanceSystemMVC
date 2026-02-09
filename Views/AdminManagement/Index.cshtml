@@ -1,0 +1,224 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h1>Admin Dashboard</h1>
+<hr />
+
+<div class="container mt-5">
+    <!-- Main Management Sections: two rows, three cards each -->
+    <div class="row">
+        <!-- Courses -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-book"></i> Courses</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage courses in the system.</p>
+                    <a asp-controller="AdminManagement" asp-action="Courses" class="btn btn-primary btn-sm">View Courses</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sections -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-layer-group"></i> Sections</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage course sections (A, B, etc.).</p>
+                    <a asp-controller="AdminManagement" asp-action="Sections" class="btn btn-success btn-sm">View Sections</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-calendar-alt"></i> Sessions</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage academic sessions (semesters).</p>
+                    <a asp-controller="AdminManagement" asp-action="Sessions" class="btn btn-info btn-sm">View Sessions</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Teachers -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5><i class="fas fa-chalkboard-teacher"></i> Teacher Profiles</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage teacher accounts and profiles.</p>
+                    <a asp-controller="AdminManagement" asp-action="Teachers" class="btn btn-warning btn-sm">View Teachers</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="fas fa-user-graduate"></i> Student Profiles</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage student accounts and profiles.</p>
+                    <a asp-controller="AdminManagement" asp-action="Students" class="btn btn-danger btn-sm">View Students</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users (Registration) -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5><i class="fas fa-users"></i> Users Registration</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage all system users and LMS registration.</p>
+                    <a asp-controller="AdminManagement" asp-action="Users" class="btn btn-secondary btn-sm">View Users</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    <h3 class="mt-5">Assignments & Mappings</h3>
+    <div class="row">
+        <!-- Assign Teachers to Courses -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-user-tie"></i> <i class="fas fa-arrow-right"></i> <i class="fas fa-book"></i> Assign Teachers</h5>
+                </div>
+                <div class="card-body">
+                    <p>Assign teachers to courses and sections.</p>
+                    <a asp-controller="AdminManagement" asp-action="AssignTeacher" class="btn btn-primary btn-sm">Assign Teacher</a>
+                    <a asp-controller="AdminManagement" asp-action="CourseAssignments" class="btn btn-outline-primary btn-sm">View Assignments</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assign Students to Courses (Enrollments) -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="fas fa-user-graduate"></i> <i class="fas fa-arrow-right"></i> <i class="fas fa-book"></i> Enroll Students</h5>
+                </div>
+                <div class="card-body">
+                    <p>Enroll students in courses and sections.</p>
+                    <a asp-controller="AdminManagement" asp-action="EnrollStudent" class="btn btn-danger btn-sm">Enroll Student</a>
+                    <a asp-controller="AdminManagement" asp-action="Enrollments" class="btn btn-outline-danger btn-sm">View Enrollments</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assign Students to Sections -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5><i class="fas fa-user-graduate"></i> <i class="fas fa-arrow-right"></i> <i class="fas fa-layer-group"></i> Assign to Sections</h5>
+                </div>
+                <div class="card-body">
+                    <p>Assign students to sections (bulk operation).</p>
+                    <a asp-controller="AdminManagement" asp-action="AssignStudentsToSection" class="btn btn-warning btn-sm">Assign Students</a>
+                    <a asp-controller="AdminManagement" asp-action="Students" class="btn btn-outline-warning btn-sm">View Students</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Section-Session Mappings -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-layer-group"></i> <i class="fas fa-plus"></i> <i class="fas fa-calendar-alt"></i> Map Sections</h5>
+                </div>
+                <div class="card-body">
+                    <p>Link sections to academic sessions.</p>
+                    <a asp-controller="AdminManagement" asp-action="CreateSectionSession" class="btn btn-success btn-sm">Create Mapping</a>
+                    <a asp-controller="AdminManagement" asp-action="SectionSessions" class="btn btn-outline-success btn-sm">View Mappings</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Schedules -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-clock"></i> Course Schedules</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage course timetables and schedules.</p>
+                    <a asp-controller="AdminManagement" asp-action="CreateCourseSchedule" class="btn btn-info btn-sm">Create Schedule</a>
+                    <a asp-controller="AdminManagement" asp-action="CourseSchedules" class="btn btn-outline-info btn-sm">View Schedules</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports & Analytics -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5><i class="fas fa-chart-bar"></i> Reports & Analytics</h5>
+                </div>
+                <div class="card-body">
+                    <p>View system reports and analytics.</p>
+                    <a asp-controller="Reports" asp-action="Index" class="btn btn-dark btn-sm">View Reports</a>
+                    <a asp-controller="Reports" asp-action="Analytics" class="btn btn-outline-dark btn-sm">Analytics</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Dashboard -->
+    <hr />
+    <h3 class="mt-5">Quick Overview</h3>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-primary"><i class="fas fa-book"></i></h4>
+                    <p class="card-text">Total Courses</p>
+                    <small class="text-muted">Click Courses to view</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-warning"><i class="fas fa-chalkboard-teacher"></i></h4>
+                    <p class="card-text">Total Teachers</p>
+                    <small class="text-muted">Click Teachers to view</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-danger"><i class="fas fa-user-graduate"></i></h4>
+                    <p class="card-text">Total Students</p>
+                    <small class="text-muted">Click Students to view</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-success"><i class="fas fa-layer-group"></i></h4>
+                    <p class="card-text">Total Sections</p>
+                    <small class="text-muted">Click Sections to view</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

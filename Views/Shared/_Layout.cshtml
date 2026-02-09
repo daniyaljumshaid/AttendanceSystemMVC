@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Attendance System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        body { background-color: #f8f9fa; }
+        .navbar { box-shadow: 0 2px 4px rgba(0,0,0,.1); }
+        .navbar-brand { font-weight: bold; font-size: 1.3rem; }
+        .container { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" asp-controller="Home" asp-action="Index">📚 Attendance System</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                @if (User?.Identity?.IsAuthenticated == true)
+                {
+                    if (User.IsInRole("Student"))
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Index">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Courses">Courses</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="RegisterCourses">Register for Courses</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Timetable">Timetable</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="MonthlyReport">Attendance Report</a></li>
+                    }
+                    else if (User.IsInRole("Teacher"))
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Teacher" asp-action="Index">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Teacher" asp-action="CurrentClass">Current Class</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Teacher" asp-action="ClassMonthlyReport">Class Reports</a></li>
+                    }
+                    else if (User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="AdminManagement" asp-action="Index"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="AdminManagement" asp-action="Courses"><i class="fas fa-book"></i> Courses</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="AdminManagement" asp-action="Students"><i class="fas fa-user-graduate"></i> Students</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="AdminManagement" asp-action="Teachers"><i class="fas fa-chalkboard-teacher"></i> Teachers</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Reports" asp-action="AttendanceReport"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-cogs"></i> Manage
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" asp-controller="AdminManagement" asp-action="Sections"><i class="fas fa-layer-group"></i> Sections</a>
+                                <a class="dropdown-item" asp-controller="AdminManagement" asp-action="Sessions"><i class="fas fa-calendar-alt"></i> Sessions</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" asp-controller="AdminManagement" asp-action="AssignTeacher"><i class="fas fa-user-tie"></i> Assign Teachers</a>
+                                <a class="dropdown-item" asp-controller="AdminManagement" asp-action="EnrollStudent"><i class="fas fa-user-plus"></i> Enroll Students</a>
+                                <a class="dropdown-item" asp-controller="AdminManagement" asp-action="AssignStudentsToSection"><i class="fas fa-users-cog"></i> Assign to Sections</a>
+                            </div>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
+                }
+            </ul>
+
+            <ul class="navbar-nav ml-auto">
+                @if (User?.Identity?.IsAuthenticated == true)
+                {
+                    <li class="nav-item"><span class="navbar-text mr-3">Welcome, @User.Identity.Name</span></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                }
+                else
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                }
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-3">
+        @RenderBody()
+    </div>
+
+    <footer class="mt-5 py-4 bg-light text-center">
+        <p class="text-muted">&copy; 2025 Attendance Management System. All rights reserved.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
